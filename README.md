@@ -1,1 +1,1 @@
-# Project69
+# Base for a DirectX2D Project
