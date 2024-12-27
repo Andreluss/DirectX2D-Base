@@ -30,6 +30,7 @@
     <ProjectGuid>{43d75c47-04ae-4e30-8a4a-93cb34c775ae}</ProjectGuid>
     <RootNamespace>Project69</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Base2D</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
