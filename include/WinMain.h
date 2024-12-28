@@ -3,8 +3,7 @@
 #ifndef UNICODE
 #define UNICODE
 #endif 
-
-#include <windows.h>
+#include "App.h"
 
 INT WINAPI wWinMain(
     _In_ HINSTANCE instance,
