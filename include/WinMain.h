@@ -3,7 +3,7 @@
 #ifndef UNICODE
 #define UNICODE
 #endif 
-#include "App.h"
+#include "GrillApp.h"
 
 INT WINAPI wWinMain(
     _In_ HINSTANCE instance,

@@ -20,9 +20,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\App.h" />
+    <ClInclude Include="include\GrillApp.h" />
     <ClInclude Include="include\WinMain.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="include\GrillApp.cpp" />
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\WinMain.cpp" />
   </ItemGroup>

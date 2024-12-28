@@ -1,4 +1,5 @@
 ﻿#include "WinMain.h"
+#include <memory>
 
 INT WINAPI wWinMain(
     _In_ [[maybe_unused]] HINSTANCE hInstance,
@@ -16,11 +17,14 @@ INT WINAPI wWinMain(
     if (SUCCEEDED(CoInitialize(NULL)))
     {
         {
-            App app;
-
-            if (SUCCEEDED(app.Initialize()))
+            auto app = std::make_unique<GrillApp>();
+            if (auto hr = app->Initialize(); SUCCEEDED(hr)) 
             {
-                app.RunMessageLoop();
+                app->RunMessageLoop();
+            }
+            else
+            {
+                return hr;
             }
         }
         CoUninitialize();

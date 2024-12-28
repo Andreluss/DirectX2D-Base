@@ -1,23 +1,6 @@
 // Source adapted from: https://learn.microsoft.com/en-us/windows/win32/direct2d/direct2d-quickstart#part-2-implement-the-class-infrastructure
 #include "App.h"
 
-App::App() :
-    m_hwnd(NULL),
-    m_pDirect2dFactory(NULL),
-    m_pRenderTarget(NULL),
-    m_pLightSlateGrayBrush(NULL),
-    m_pCornflowerBlueBrush(NULL)
-{
-}
-
-App::~App()
-{
-    SafeRelease(&m_pDirect2dFactory);
-    SafeRelease(&m_pRenderTarget);
-    SafeRelease(&m_pLightSlateGrayBrush);
-    SafeRelease(&m_pCornflowerBlueBrush);
-}
-
 void App::RunMessageLoop()
 {
     MSG msg;
@@ -99,7 +82,7 @@ HRESULT App::CreateDeviceIndependentResources()
     HRESULT hr = S_OK;
 
     // Create a Direct2D factory.
-    hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &m_pDirect2dFactory);
+    hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, m_pDirect2dFactory.GetAddressOf());
 
     return hr;
 }
@@ -127,19 +110,7 @@ HRESULT App::CreateDeviceResources()
 
         if (SUCCEEDED(hr))
         {
-            // Create a gray brush.
-            hr = m_pRenderTarget->CreateSolidColorBrush(
-                D2D1::ColorF(D2D1::ColorF::LightSlateGray),
-                &m_pLightSlateGrayBrush
-            );
-        }
-        if (SUCCEEDED(hr))
-        {
-            // Create a blue brush.
-            hr = m_pRenderTarget->CreateSolidColorBrush(
-                D2D1::ColorF(D2D1::ColorF::CornflowerBlue),
-                &m_pCornflowerBlueBrush
-            );
+            hr = CreateDeviceResourcesUser();
         }
     }
 
@@ -148,9 +119,8 @@ HRESULT App::CreateDeviceResources()
 
 void App::DiscardDeviceResources()
 {
-    SafeRelease(&m_pRenderTarget);
-    SafeRelease(&m_pLightSlateGrayBrush);
-    SafeRelease(&m_pCornflowerBlueBrush);
+    m_pRenderTarget.Reset();
+    DiscardDeviceResourcesUser();
 }
 
 HRESULT App::OnRender()
@@ -180,52 +150,6 @@ HRESULT App::OnRender()
 
 void App::Update()
 {
-    D2D1_SIZE_F rtSize = m_pRenderTarget->GetSize();
-
-    // Draw a grid background.
-    int width = static_cast<int>(rtSize.width);
-    int height = static_cast<int>(rtSize.height);
-
-    for (int x = 0; x < width; x += 10)
-    {
-        m_pRenderTarget->DrawLine(
-            D2D1::Point2F(static_cast<FLOAT>(x), 0.0f),
-            D2D1::Point2F(static_cast<FLOAT>(x), rtSize.height),
-            m_pLightSlateGrayBrush,
-            0.5f
-        );
-    }
-
-    for (int y = 0; y < height; y += 10)
-    {
-        m_pRenderTarget->DrawLine(
-            D2D1::Point2F(0.0f, static_cast<FLOAT>(y)),
-            D2D1::Point2F(rtSize.width, static_cast<FLOAT>(y)),
-            m_pLightSlateGrayBrush,
-            0.5f
-        );
-    }
-
-    // Draw two rectangles.
-    D2D1_RECT_F rectangle1 = D2D1::RectF(
-        rtSize.width / 2 - 50.0f,
-        rtSize.height / 2 - 50.0f,
-        rtSize.width / 2 + 50.0f,
-        rtSize.height / 2 + 50.0f
-    );
-
-    D2D1_RECT_F rectangle2 = D2D1::RectF(
-        rtSize.width / 2 - 100.0f,
-        rtSize.height / 2 - 100.0f,
-        rtSize.width / 2 + 100.0f,
-        rtSize.height / 2 + 100.0f
-    );
-
-    // Draw a filled rectangle.
-    m_pRenderTarget->FillRectangle(&rectangle1, m_pLightSlateGrayBrush);
-
-    // Draw the outline of a rectangle.
-    m_pRenderTarget->DrawRectangle(&rectangle2, m_pCornflowerBlueBrush);
 }
 
 void App::OnResize(UINT width, UINT height)

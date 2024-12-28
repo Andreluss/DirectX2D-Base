@@ -1,4 +1,3 @@
-// Source adapted from: https://learn.microsoft.com/en-us/windows/win32/direct2d/direct2d-quickstart
 #pragma once
 #include <windows.h>
 
@@ -12,6 +11,9 @@
 #include <d2d1helper.h>
 #include <dwrite.h>
 #include <wincodec.h>
+#include <wrl/client.h>
+
+using Microsoft::WRL::ComPtr;
 
 template<class Interface>
 inline void SafeRelease(
@@ -40,9 +42,6 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 class App
 {
 public:
-    App();
-    ~App();
-
     // Register the window class and call methods for instantiating drawing resources
     HRESULT Initialize();
 
@@ -50,7 +49,17 @@ public:
     void RunMessageLoop();
 
 protected:
-    void Update();
+    virtual void Update(); // float deltaTime?
+    virtual HRESULT CreateDeviceResourcesUser() { 
+        return S_OK;
+    }; // todo-soon: pass getters here only?
+    virtual void DiscardDeviceResourcesUser() {};
+    ComPtr<ID2D1Factory> GetFactory() {
+        return m_pDirect2dFactory;
+    }
+    ComPtr<ID2D1HwndRenderTarget> GetRenderTarget() {
+        return m_pRenderTarget;
+    }
 
 private:
     // Initialize device-independent resources.
@@ -80,9 +89,7 @@ private:
     );
 
 private:
-    HWND m_hwnd;
-    ID2D1Factory* m_pDirect2dFactory;
-    ID2D1HwndRenderTarget* m_pRenderTarget;
-    ID2D1SolidColorBrush* m_pLightSlateGrayBrush;
-    ID2D1SolidColorBrush* m_pCornflowerBlueBrush;
+    HWND m_hwnd{};
+    ComPtr<ID2D1Factory> m_pDirect2dFactory;
+    ComPtr<ID2D1HwndRenderTarget> m_pRenderTarget;
 };
