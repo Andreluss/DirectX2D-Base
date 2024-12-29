@@ -202,42 +202,48 @@ LRESULT CALLBACK App::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 
         if (pApp)
         {
-            switch (message)
-            {
-            case WM_SIZE:
-            {
-                UINT width = LOWORD(lParam);
-                UINT height = HIWORD(lParam);
-                pApp->OnResize(width, height);
+            if (pApp->CustomMessageHandler(message, wParam, lParam)) {
+                result = 0;
+                wasHandled = true;
             }
-            result = 0;
-            wasHandled = true;
-            break;
+            else {
+                switch (message)
+                {
+                case WM_SIZE:
+                {
+                    UINT width = LOWORD(lParam);
+                    UINT height = HIWORD(lParam);
+                    pApp->OnResize(width, height);
+                }
+                result = 0;
+                wasHandled = true;
+                break;
 
-            case WM_DISPLAYCHANGE:
-            {
-                InvalidateRect(hwnd, NULL, FALSE);
-            }
-            result = 0;
-            wasHandled = true;
-            break;
+                case WM_DISPLAYCHANGE:
+                {
+                    InvalidateRect(hwnd, NULL, FALSE);
+                }
+                result = 0;
+                wasHandled = true;
+                break;
 
-            case WM_PAINT:
-            {
-                pApp->OnRender();
-                ValidateRect(hwnd, NULL);
-            }
-            result = 0;
-            wasHandled = true;
-            break;
+                case WM_PAINT:
+                {
+                    pApp->OnRender();
+                    ValidateRect(hwnd, NULL);
+                }
+                result = 0;
+                wasHandled = true;
+                break;
 
-            case WM_DESTROY:
-            {
-                PostQuitMessage(0);
-            }
-            result = 1;
-            wasHandled = true;
-            break;
+                case WM_DESTROY:
+                {
+                    PostQuitMessage(0);
+                }
+                result = 1;
+                wasHandled = true;
+                break;
+                }
             }
         }
 

@@ -49,7 +49,15 @@ void GrillApp::Update()
     // Draw the outline of a rectangle.
     GetRenderTarget()->DrawRectangle(&rectangle2, m_pCornflowerBlueBrush.Get());
 
-    m_meat.Update(time.deltaTime);
+    for (int i = 0; i < 16; i++) {
+        // meats on 4x4 grid with 10px padding (they are 100px wide), should be relative to center of screen
+        m_meats[i]->transform.position =
+            D2D1::Point2F(
+                screen.centerX() + 110.0f * (i % 4 - 1.5f),
+                screen.centerY() + 110.0f * (static_cast<float>(i / 4) - 1.5f)
+            );
+        m_meats[i]->Update(time.deltaTime);
+    }
 }
 
 HRESULT GrillApp::CreateDeviceResourcesUser()
@@ -72,7 +80,15 @@ HRESULT GrillApp::CreateDeviceResourcesUser()
     }
 
     if (SUCCEEDED(hr)) {
-        hr = m_meat.InitResources(GetRenderTarget());
+        // make it a matrix of 16 meats
+        m_meats = std::vector<std::unique_ptr<Meat>>(16);
+        for (int i = 0; i < 16; i++) {
+            m_meats[i] = std::make_unique<Meat>(10.0f);
+            hr = m_meats[i]->InitResources(GetRenderTarget());
+            if (FAILED(hr)) {
+                return hr;
+            }
+        }
     }
     return hr;
 }
@@ -81,5 +97,4 @@ void GrillApp::DiscardDeviceResourcesUser()
 {
     m_pLightSlateGrayBrush.Reset();
     m_pCornflowerBlueBrush.Reset();
-    m_meat.DropResources();
 }

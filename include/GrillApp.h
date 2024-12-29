@@ -12,5 +12,5 @@ protected:
 private:
     ComPtr<ID2D1SolidColorBrush> m_pLightSlateGrayBrush;
     ComPtr<ID2D1SolidColorBrush> m_pCornflowerBlueBrush;
-    Meat m_meat{ 10.0f };
+    std::vector<std::unique_ptr<Meat>> m_meats;
 };

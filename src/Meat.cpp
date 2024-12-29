@@ -1,4 +1,16 @@
 #include "Meat.h"
+#include <stdexcept>
+
+void Meat::Collect()
+{
+    if (collected) {
+        throw std::logic_error("Meat has already been collected.");
+    }
+
+    OutputDebugString(L"Meat collected.\n");
+    // todo: publish a meat collected event
+    collected = true;
+}
 
 HRESULT Meat::InitResources(ComPtr<ID2D1HwndRenderTarget> render_target)
 {
@@ -19,13 +31,16 @@ void Meat::DropResources()
 
 void Meat::Update(float delta_time)
 {
+    if (collected) {
+        return;
+    }
     time_elapsed += delta_time;
     // Draw a circle representing the meat. The color should change depending on the time and the time_* parameters. 
     // First it is raw, then it is cooked, then it is burnt. At the end the meat disappears.
 
     // Draw the circle.
     D2D1_ELLIPSE ellipse = D2D1::Ellipse(
-        D2D1::Point2F(100.0f, 100.0f),
+        transform.position,
         50.0f,
         50.0f
     );
@@ -52,4 +67,10 @@ void Meat::Update(float delta_time)
     }
 
     m_pRenderTarget->FillEllipse(&ellipse, m_pMeatBrush.Get());
+}
+
+Meat::State Meat::GetState()
+{
+    // todo: implement
+    throw std::exception("Not implemented");
 }
