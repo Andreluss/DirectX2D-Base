@@ -9,6 +9,22 @@ void GrillApp::Update()
     int width = static_cast<int>(rtSize.width);
     int height = static_cast<int>(rtSize.height);
 
+    // set brush color to light slate gray
+    m_pLightSlateGrayBrush->SetColor(D2D1::ColorF(D2D1::ColorF::LightSlateGray));
+
+    // Draw two rectangles.
+    D2D1_RECT_F rectangle1 = D2D1::RectF(
+        rtSize.width / 2 - 150.0f,
+        rtSize.height / 2 - 150.0f,
+        rtSize.width / 2 + 150.0f,
+        rtSize.height / 2 + 150.0f
+    );
+    // Draw a filled rectangle.
+    GetRenderTarget()->FillRectangle(&rectangle1, m_pLightSlateGrayBrush.Get());
+
+    // set color of brush to black
+    m_pLightSlateGrayBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
+
     for (int x = 0; x < width; x += 10)
     {
         GetRenderTarget()->DrawLine(
@@ -29,13 +45,6 @@ void GrillApp::Update()
         );
     }
 
-    // Draw two rectangles.
-    D2D1_RECT_F rectangle1 = D2D1::RectF(
-        rtSize.width / 2 - 50.0f,
-        rtSize.height / 2 - 50.0f,
-        rtSize.width / 2 + 50.0f,
-        rtSize.height / 2 + 50.0f
-    );
 
     D2D1_RECT_F rectangle2 = D2D1::RectF(
         rtSize.width / 2 - 100.0f,
@@ -44,8 +53,6 @@ void GrillApp::Update()
         rtSize.height / 2 + 100.0f
     );
 
-    // Draw a filled rectangle.
-    GetRenderTarget()->FillRectangle(&rectangle1, m_pLightSlateGrayBrush.Get());
 
     // Draw the outline of a rectangle.
     GetRenderTarget()->DrawRectangle(&rectangle2, m_pCornflowerBlueBrush.Get());
@@ -60,6 +67,9 @@ void GrillApp::Update()
             );
         m_meats[i]->Update(time.deltaTime);
     }
+
+    score->transform.position = D2D1::Point2F(10.0f, 10.0f);
+    score->Update(time.deltaTime);
 }
 
 bool GrillApp::CustomMessageHandler(UINT message, WPARAM /*wParam*/, LPARAM lParam)
@@ -120,6 +130,12 @@ HRESULT GrillApp::CreateDeviceResourcesUser()
             }
         }
     }
+
+    if (SUCCEEDED(hr)) {
+        score = std::make_unique<Score>();
+        hr = score->InitGameObject(GetRenderTarget());
+    }
+
     return hr;
 }
 
@@ -127,4 +143,8 @@ void GrillApp::DiscardDeviceResourcesUser()
 {
     m_pLightSlateGrayBrush.Reset();
     m_pCornflowerBlueBrush.Reset();
+    for (auto& meat : m_meats) {
+        if (!meat) continue;
+        meat->DropResources();
+    }
 }
