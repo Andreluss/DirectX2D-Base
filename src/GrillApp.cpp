@@ -51,6 +51,7 @@ void GrillApp::Update()
     GetRenderTarget()->DrawRectangle(&rectangle2, m_pCornflowerBlueBrush.Get());
 
     for (int i = 0; i < 16; i++) {
+        if (!m_meats[i]) continue;
         // meats on 4x4 grid with 10px padding (they are 100px wide), should be relative to center of screen
         m_meats[i]->transform.position =
             D2D1::Point2F(
@@ -81,6 +82,7 @@ bool GrillApp::CustomMessageHandler(UINT message, WPARAM /*wParam*/, LPARAM lPar
 
             if (contains_point) {
                 meat->Collect();
+                meat.reset();
                 return true;
             }
         }
