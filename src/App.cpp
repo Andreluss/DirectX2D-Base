@@ -5,11 +5,16 @@ void App::RunMessageLoop()
 {
     MSG msg;
 
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
+    do {
+        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+        // Trigger a redraw with FPS cap. 
+        else if (time.now() - time.time >= 1.0 / config.maxFPS) {
+            InvalidateRect(m_hwnd, NULL, TRUE);
+        }
+    } while (msg.message != WM_QUIT);
 }
 
 HRESULT App::Initialize()
@@ -126,6 +131,11 @@ void App::DiscardDeviceResources()
 HRESULT App::OnRender()
 {
     HRESULT hr = S_OK;
+
+    // Update frame time.
+    float time_now = time.now();
+    time.deltaTime = time_now - time.time;
+    time.time = time_now;
 
     hr = CreateDeviceResources();
     if (SUCCEEDED(hr))

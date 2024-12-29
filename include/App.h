@@ -6,6 +6,7 @@
 #include <memory.h>
 #include <wchar.h>
 #include <math.h>
+#include <chrono>
 
 #include <d2d1.h>
 #include <d2d1helper.h>
@@ -61,7 +62,19 @@ protected:
         return m_pRenderTarget;
     }
 
+    // Information about the time elapsed between frames.
+    struct Time {
+        float time {};
+        float deltaTime {};
+        float now() {
+            return std::chrono::duration<float>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+        }
+    } time;
+    struct Config {
+        float maxFPS = 60.0f;
+    } config;
 private:
+
     // Initialize device-independent resources.
     HRESULT CreateDeviceIndependentResources();
 
