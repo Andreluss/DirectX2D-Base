@@ -8,6 +8,7 @@
 #include <wrl/client.h>
 
 #include "core/Transform.h"
+#include "core/Collider.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -40,8 +41,9 @@ public:
     void Update(float delta_time);
 
     Transform transform {};
+    // todo: add collider which has a reference to gameobject's transform
     // -------------------------------------------------------
-
+    const float radius = 50.0f;
     enum class State {
         Raw,
         Cooked,

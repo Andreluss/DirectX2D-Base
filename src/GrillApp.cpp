@@ -1,4 +1,5 @@
 #include "GrillApp.h"
+#include <windowsx.h>
 
 void GrillApp::Update()
 {
@@ -58,6 +59,33 @@ void GrillApp::Update()
             );
         m_meats[i]->Update(time.deltaTime);
     }
+}
+
+bool GrillApp::CustomMessageHandler(UINT message, WPARAM /*wParam*/, LPARAM lParam)
+{
+    if (message == WM_LBUTTONDOWN)
+    {
+        // Get the mouse position.
+        D2D1_POINT_2F pt = {
+            .x = static_cast<float>(GET_X_LPARAM(lParam)),
+            .y = static_cast<float>(GET_Y_LPARAM(lParam)),
+        };
+        // Check to see if the mouse is inside the circle with center at 50, 60 and radius 40:
+
+        for (auto& meat : m_meats) {
+            if (!meat) continue;
+
+            bool contains_point = pow(meat->transform.position.x - pt.x, 2) 
+                                  + pow(meat->transform.position.y - pt.y, 2) 
+                                  < pow(meat->radius, 2);
+
+            if (contains_point) {
+                meat->Collect();
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 HRESULT GrillApp::CreateDeviceResourcesUser()
