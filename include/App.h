@@ -64,7 +64,7 @@ protected:
 
     // Information about the time elapsed between frames.
     struct Time {
-        float time {};
+        float time = now();
         float deltaTime {};
         float now() {
             return std::chrono::duration<float>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();

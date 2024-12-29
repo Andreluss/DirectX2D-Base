@@ -24,6 +24,9 @@
     <ClInclude Include="include\GrillApp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Meat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\WinMain.cpp">
@@ -32,7 +35,10 @@
     <ClCompile Include="src\App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="include\GrillApp.cpp">
+    <ClCompile Include="src\Meat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GrillApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

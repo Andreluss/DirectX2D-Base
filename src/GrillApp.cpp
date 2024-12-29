@@ -48,13 +48,15 @@ void GrillApp::Update()
 
     // Draw the outline of a rectangle.
     GetRenderTarget()->DrawRectangle(&rectangle2, m_pCornflowerBlueBrush.Get());
+
+    m_meat.Update(time.deltaTime);
 }
 
 HRESULT GrillApp::CreateDeviceResourcesUser()
 {
     // Create a gray brush.
     HRESULT hr = S_OK;
-         
+
     hr = GetRenderTarget()->CreateSolidColorBrush(
         D2D1::ColorF(D2D1::ColorF::LightSlateGray),
         &m_pLightSlateGrayBrush
@@ -68,6 +70,10 @@ HRESULT GrillApp::CreateDeviceResourcesUser()
             &m_pCornflowerBlueBrush
         );
     }
+
+    if (SUCCEEDED(hr)) {
+        hr = m_meat.InitResources(GetRenderTarget());
+    }
     return hr;
 }
 
@@ -75,4 +81,5 @@ void GrillApp::DiscardDeviceResourcesUser()
 {
     m_pLightSlateGrayBrush.Reset();
     m_pCornflowerBlueBrush.Reset();
+    m_meat.DropResources();
 }
