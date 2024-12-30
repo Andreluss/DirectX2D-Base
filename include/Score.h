@@ -18,15 +18,10 @@ protected:
 public:
     virtual void Update(float delta_time) override;
     void OnMeatEvent(Meat::Event event);
-    Score() {
-        //event_system<Meat::Event>.Subscribe(std::bind(&Score::OnMeatEvent, this, std::placeholders::_1));
-        // use lambda
-        event_system<Meat::Event>.Subscribe((void*)this, [this](Meat::Event event) {
-            OnMeatEvent(event);
-        });
-    }
-    ~Score() {
-        event_system<Meat::Event>.Unsubscribe( (void*)this);
-    }
+
+    // This bounds the subscription to the lifetime of the Score object.
+    EventSubscription<Meat::Event> meat_event_subscription{ [this](Meat::Event event) {
+        OnMeatEvent(event);
+    } };
 };
 

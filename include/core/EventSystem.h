@@ -30,3 +30,18 @@ private:
 // template variable:
 template<class MessageType>
 EventSystem<MessageType> event_system;
+
+// Safe RAII subscription wrapper.
+template<class MessageType>
+class EventSubscription
+{
+public:
+    EventSubscription(std::function<void(MessageType)> subscriber)
+    {
+        event_system<MessageType>.Subscribe(this, subscriber);
+    }
+    ~EventSubscription()
+    {
+        event_system<MessageType>.Unsubscribe(this);
+    }
+};

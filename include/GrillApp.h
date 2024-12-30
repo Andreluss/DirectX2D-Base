@@ -15,5 +15,46 @@ private:
     ComPtr<ID2D1SolidColorBrush> m_pLightSlateGrayBrush;
     ComPtr<ID2D1SolidColorBrush> m_pBlackBrush;
     std::vector<std::unique_ptr<Meat>> m_meats;
+    int MeatsCount() const {
+        int count = 0;
+        for (const auto& meat : m_meats) {
+            if (meat) count++;
+        }
+        return count;
+    }
     std::unique_ptr<Score> score;
+
+    float gameProgress{};
+    float nextMeatSpawnTime{};
+    struct GameConfig {
+        const int maxMeats = 16;
+        const float gameDuration = 60.0f;
+        const float meatOnGrillTime = 8.f;
+        const int finalMaxMeats = 10;
+        const float timeToNextSpawn = 1.0f;
+        std::vector<std::pair<float, int>> maxMeatsAtProgress = {
+            {0.0f, 1},
+            {0.07f, 3},
+            {0.2f, 5},
+            {0.3f, 6},
+            {0.4f, 8},
+            {0.6f, 9},
+            {0.75f, finalMaxMeats}
+        };
+    } gameConfig;
+    void UpdateGame(float delta_time);
+    void SpawnMeat();
+
+    void DrawGrill();
+
+    EventSubscription<Meat::Event> meat_event_subscription{ [this](Meat::Event event) {
+        // find and nullptr the meat with the given idx
+        for (auto& meat : m_meats) {
+            if (!meat) continue;
+            if (meat->GetIdx() == event.meat_idx) {
+                meat.reset();
+                break;
+            }
+        }
+    } };
 };

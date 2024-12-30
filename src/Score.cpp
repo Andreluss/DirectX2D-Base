@@ -46,18 +46,18 @@ void Score::Update(float /*delta_time*/)
 {
     OutputDebugString(L"Score::Update\n");
     std::wstring score_str = std::wstring(L"Score: ") + std::to_wstring(score);
-    render_target->DrawTextW(
+    render_target->DrawText(
         score_str.c_str(),
-        9,
+        score_str.size(),
         m_pTextFormat.Get(),
-        D2D1::RectF(transform.position.x, transform.position.y, 200, 40),
+        D2D1::RectF(transform.position.x, transform.position.y, 400, 40),
         m_pTextBrush.Get()
     );
 }
 
 void Score::OnMeatEvent(Meat::Event event)
 {
-    switch (event) {
+    switch (event.type) {
     case Meat::Event::CollectRaw:
         score -= 1;
         break;

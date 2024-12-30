@@ -1,11 +1,5 @@
 #pragma once
-#include <windows.h>
-
-#include <d2d1.h>
-#include <d2d1helper.h>
-#include <dwrite.h>
-#include <wincodec.h>
-#include <wrl/client.h>
+#include "common.h"
 
 #include "core/Transform.h"
 #include "core/Collider.h"
@@ -14,6 +8,9 @@ using Microsoft::WRL::ComPtr;
 
 class Meat
 {
+public: 
+    using Idx = int;
+    Idx GetIdx() const { return idx; }
 private:
     float time_elapsed{};
 
@@ -25,11 +22,13 @@ private:
     float time_to_burn;
     float time_max;
 
+    Idx idx; 
+
     ComPtr<ID2D1HwndRenderTarget> m_pRenderTarget;
     // Brush to render the meat.
     ComPtr<ID2D1SolidColorBrush> m_pMeatBrush;
 public:
-    Meat(float total_time) : time_to_cook(total_time * 0.5f), time_to_burn(total_time * 0.75f), time_max(total_time) {}
+    Meat(float total_time, Idx idx) : time_to_cook(total_time * 0.5f), time_to_burn(total_time * 0.75f), time_max(total_time), idx(idx) {}
     ~Meat() = default;
 
     // Collect the meat from the grill.
@@ -45,11 +44,14 @@ public:
     // -------------------------------------------------------
     const float radius = 40.0f;
     // Event published when meat disappears from the grill. 
-    enum class Event {
-        CollectRaw,
-        CollectCooked,
-        CollectBurnt,
-        NotCollected
+    struct Event {
+        enum {
+            CollectRaw,
+            CollectCooked,
+            CollectBurnt,
+            NotCollected
+        } type;
+        Idx meat_idx;
     };
 };
 

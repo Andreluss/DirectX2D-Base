@@ -5,30 +5,28 @@
 void Meat::Collect()
 {
     if (!exists) {
-        OutputDebugString(L"Meat doesn't exist and can't be collected.");
+        OutputDebugString(L"[WARN]: Meat doesn't exist and can't be collected.");
         return;
     }
 
     OutputDebugString(L"Meat collected.\n");
-    Meat::Event event; 
+    Meat::Event event{
+        .type = Meat::Event::NotCollected,
+        .meat_idx = idx
+    };
+    if (time_elapsed < time_to_cook)
     {
-        if (time_elapsed < time_to_cook)
-        {
-            event = Meat::Event::CollectRaw;
-        }
-        else if (time_elapsed < time_to_burn)
-        {
-            event = Meat::Event::CollectCooked;
-        }
-        else if (time_elapsed < time_max)
-        {
-            event = Meat::Event::CollectBurnt;
-        }
-        else
-        {
-            event = Meat::Event::NotCollected;
-        }
+        event.type = Meat::Event::CollectRaw;
     }
+    else if (time_elapsed < time_to_burn)
+    {
+        event.type = Meat::Event::CollectCooked;
+    }
+    else if (time_elapsed < time_max)
+    {
+        event.type = Meat::Event::CollectBurnt;
+    }
+    Assert(event.type != Meat::Event::NotCollected && L"Meat is completely burnt, yet collected.");
 
     event_system<Meat::Event>.Publish(event);
     exists = false;
@@ -86,8 +84,14 @@ void Meat::Update(float delta_time)
     {
         // Meat is gone.
         if (exists) {
-            event_system<Meat::Event>.Publish(Meat::Event::NotCollected);
             exists = false;
+            event_system<Meat::Event>.Publish(
+                Meat::Event {
+                .type = Meat::Event::NotCollected,
+                .meat_idx = idx
+                }
+            );
+            // after this instruction the destructor has been called...
         }
         return;
     }

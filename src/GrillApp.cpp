@@ -1,17 +1,64 @@
 #include "GrillApp.h"
 #include <windowsx.h>
+#include <random>
 
-void GrillApp::Update()
+// https://stackoverflow.com/a/36527160/15597349
+static float random_float(float min, float max)
 {
-    D2D1_SIZE_F rtSize = GetRenderTarget()->GetSize();
+    static std::default_random_engine e;
+    std::uniform_real_distribution<> dis(min, max); // range [0, 1)
+    return static_cast<float>(dis(e));
+}
 
-    // Draw a dark green background.
-    GetRenderTarget()->Clear(D2D1::ColorF(0x225522));
+void GrillApp::UpdateGame(float delta_time)
+{
+    gameProgress += delta_time / gameConfig.gameDuration;
+    if (gameProgress > 1.0f) {
+        gameProgress = 1.0f;
+    }
+    int max_meats = 1;
+    for (auto& [progress, max] : gameConfig.maxMeatsAtProgress) {
+        if (gameProgress < progress) {
+            break;
+        }
+        max_meats = max;
+    }
 
-    // set brush color to light slate gray
-    m_pLightSlateGrayBrush->SetColor(D2D1::ColorF(D2D1::ColorF::LightSlateGray));
+    if (MeatsCount() < max_meats && time.time > nextMeatSpawnTime) {
+        SpawnMeat();
+    }
+}
 
-    // Draw two rectangles.
+void GrillApp::SpawnMeat()
+{
+    Assert(nextMeatSpawnTime <= time.time && "Spawned meat too early");
+    nextMeatSpawnTime = time.time + gameConfig.timeToNextSpawn;
+
+    // Where to spawn
+    int spawn_idx = [&]() {
+        std::vector<int> available_spawn_points;
+        for (int i = 0; i < gameConfig.maxMeats; i++) {
+            if (!m_meats[i]) {
+                available_spawn_points.push_back(i);
+            }
+        }
+        Assert(!available_spawn_points.empty() && "No available spawn points");
+
+        return available_spawn_points[rand() % available_spawn_points.size()];
+    }();
+
+
+    // What meat to spawn
+    float total_meat_time = gameConfig.meatOnGrillTime 
+        * random_float(0.3f, 1.f);
+    Assert(total_meat_time > 0.05f && "Meat time is irreasonably <= 0.05s");
+
+    // Spawn and initialize 
+    m_meats[spawn_idx] = std::make_unique<Meat>(total_meat_time, Meat::Idx(spawn_idx));
+    m_meats[spawn_idx]->InitResources(GetRenderTarget()); // todo: run automatically when creating GameObject
+}
+
+void GrillApp::DrawGrill() {
     float grill_grate_size = 380.0f;
     D2D1_RECT_F grill_grate_rect = D2D1::RectF(
         screen.centerX() - grill_grate_size / 2,
@@ -19,12 +66,10 @@ void GrillApp::Update()
         screen.centerX() + grill_grate_size / 2,
         screen.centerY() + grill_grate_size / 2
     );
-    // Draw a filled rectangle.
+    m_pLightSlateGrayBrush->SetColor(D2D1::ColorF(D2D1::ColorF::LightSlateGray));
     GetRenderTarget()->FillRectangle(&grill_grate_rect, m_pLightSlateGrayBrush.Get());
 
-    // set color of brush to black
     m_pLightSlateGrayBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
-
     for (auto x = grill_grate_rect.left; x < grill_grate_rect.right; x += 20)
     {
         GetRenderTarget()->DrawLine(
@@ -47,21 +92,30 @@ void GrillApp::Update()
 
     float grill_border_size = grill_grate_size + 5.0f;
     D2D1_RECT_F grill_border_rect = D2D1::Rect(
-        rtSize.width / 2 - grill_border_size / 2,
-        rtSize.height / 2 - grill_border_size / 2,
-        rtSize.width / 2 + grill_border_size / 2,
-        rtSize.height / 2 + grill_border_size / 2
+        screen.centerX() - grill_border_size / 2,
+        screen.centerY() - grill_border_size / 2,
+        screen.centerX() + grill_border_size / 2,
+        screen.centerY() + grill_border_size / 2
     );
+
     // rounded rect of grill border with 10px radius
     GetRenderTarget()->DrawRoundedRectangle(
         D2D1::RoundedRect(grill_border_rect, 10.0f, 10.0f),
         m_pBlackBrush.Get(),
         10.0f
     );
+}
+
+void GrillApp::Update()
+{
+    // Draw a dark green background.
+    GetRenderTarget()->Clear(D2D1::ColorF(0x225522));
+
+    DrawGrill();
 
     for (int i = 0; i < 16; i++) {
         if (!m_meats[i]) continue;
-        // meats on 4x4 grid with 10px padding (they are 100px wide), should be relative to center of screen
+        // meats on 4x4 grid with, relative to center of screen
         m_meats[i]->transform.position =
             D2D1::Point2F(
                 screen.centerX() + 90.0f * (i % 4 - 1.5f),
@@ -72,6 +126,8 @@ void GrillApp::Update()
 
     score->transform.position = D2D1::Point2F(10.0f, 10.0f);
     score->Update(time.deltaTime);
+
+    UpdateGame(time.deltaTime);
 }
 
 bool GrillApp::CustomMessageHandler(UINT message, WPARAM /*wParam*/, LPARAM lParam)
@@ -122,15 +178,7 @@ HRESULT GrillApp::CreateDeviceResourcesUser()
     }
 
     if (SUCCEEDED(hr)) {
-        // make it a matrix of 16 meats
-        m_meats = std::vector<std::unique_ptr<Meat>>(16);
-        for (int i = 0; i < 16; i++) {
-            m_meats[i] = std::make_unique<Meat>(10.0f);
-            hr = m_meats[i]->InitResources(GetRenderTarget());
-            if (FAILED(hr)) {
-                return hr;
-            }
-        }
+        m_meats = std::vector<std::unique_ptr<Meat>>(gameConfig.maxMeats);
     }
 
     if (SUCCEEDED(hr)) {
