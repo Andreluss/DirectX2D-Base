@@ -55,19 +55,20 @@ void Score::Update(float /*delta_time*/)
     );
 }
 
-void Score::OnMeatCollected(Meat::State state)
+void Score::OnMeatEvent(Meat::Event event)
 {
-    switch (state)
-    {
-    case Meat::State::Cooked:
-        score += 20;
+    switch (event) {
+    case Meat::Event::CollectRaw:
+        score -= 1;
         break;
-    case Meat::State::Burnt:
-    case Meat::State::Raw:
-        score -= 5;
+    case Meat::Event::CollectCooked:
+        score += 5;
         break;
-    case Meat::State::Gone:
-        score -= 7;
+    case Meat::Event::CollectBurnt:
+        score -= 1;
+        break;
+    case Meat::Event::NotCollected:
+        score -= 3;
         break;
     }
 }

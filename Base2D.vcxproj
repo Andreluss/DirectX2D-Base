@@ -22,6 +22,7 @@
     <ClInclude Include="include\App.h" />
     <ClInclude Include="include\common.h" />
     <ClInclude Include="include\core\Collider.h" />
+    <ClInclude Include="include\core\EventSystem.h" />
     <ClInclude Include="include\core\GameObject.h" />
     <ClInclude Include="include\core\Transform.h" />
     <ClInclude Include="include\GrillApp.h" />
@@ -32,6 +33,7 @@
   <ItemGroup>
     <ClCompile Include="src\App.cpp" />
     <ClCompile Include="src\core\Collider.cpp" />
+    <ClCompile Include="src\core\EventSystem.cpp" />
     <ClCompile Include="src\core\GameObject.cpp" />
     <ClCompile Include="src\core\Transform.cpp" />
     <ClCompile Include="src\GrillApp.cpp" />

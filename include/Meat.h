@@ -17,8 +17,8 @@ class Meat
 private:
     float time_elapsed{};
 
-    // Whether the meat has been collected by the player.
-    bool collected {false};
+    // Whether the meat is still on the grill (and can be collected).
+    bool exists{ true };
 
     // These should be strictly increasing: 
     float time_to_cook;
@@ -44,12 +44,12 @@ public:
     // todo: add collider which has a reference to gameobject's transform
     // -------------------------------------------------------
     const float radius = 50.0f;
-    enum class State {
-        Raw,
-        Cooked,
-        Burnt,
-        Gone
+    // Event published when meat disappears from the grill. 
+    enum class Event {
+        CollectRaw,
+        CollectCooked,
+        CollectBurnt,
+        NotCollected
     };
-    State GetState(); 
 };
 

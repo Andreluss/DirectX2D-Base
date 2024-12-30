@@ -1,15 +1,36 @@
 #include "Meat.h"
+#include "core/EventSystem.h"
 #include <stdexcept>
 
 void Meat::Collect()
 {
-    if (collected) {
-        throw std::logic_error("Meat has already been collected.");
+    if (!exists) {
+        throw std::logic_error("Meat doesn't exist and can't be collected.");
     }
 
     OutputDebugString(L"Meat collected.\n");
-    // todo: publish a meat collected event
-    collected = true;
+    Meat::Event event; 
+    {
+        if (time_elapsed < time_to_cook)
+        {
+            event = Meat::Event::CollectRaw;
+        }
+        else if (time_elapsed < time_to_burn)
+        {
+            event = Meat::Event::CollectCooked;
+        }
+        else if (time_elapsed < time_max)
+        {
+            event = Meat::Event::CollectBurnt;
+        }
+        else
+        {
+            event = Meat::Event::NotCollected;
+        }
+    }
+
+    event_system<Meat::Event>.Publish(event);
+    exists = false;
 }
 
 HRESULT Meat::InitResources(ComPtr<ID2D1HwndRenderTarget> render_target)
@@ -31,7 +52,7 @@ void Meat::DropResources()
 
 void Meat::Update(float delta_time)
 {
-    if (collected) {
+    if (!exists) {
         return;
     }
     time_elapsed += delta_time;
@@ -63,14 +84,12 @@ void Meat::Update(float delta_time)
     else
     {
         // Meat is gone.
+        if (exists) {
+            event_system<Meat::Event>.Publish(Meat::Event::NotCollected);
+            exists = false;
+        }
         return;
     }
 
     m_pRenderTarget->FillEllipse(&ellipse, m_pMeatBrush.Get());
-}
-
-Meat::State Meat::GetState()
-{
-    // todo: implement
-    throw std::exception("Not implemented");
 }
