@@ -3,10 +3,11 @@
 
 #include "core/Transform.h"
 #include "core/Collider.h"
+#include "core/GameObject.h"
 
 using Microsoft::WRL::ComPtr;
 
-class Meat
+class Meat : public GameObject
 {
 public: 
     using Idx = int;
@@ -24,7 +25,7 @@ private:
 
     Idx idx; 
 
-    ComPtr<ID2D1HwndRenderTarget> m_pRenderTarget;
+    ComPtr<ID2D1HwndRenderTarget> render_target;
     // Brush to render the meat.
     ComPtr<ID2D1SolidColorBrush> m_pMeatBrush;
 
@@ -37,11 +38,9 @@ public:
     void Collect();
 
     // ----------- common methods for game objects -----------
-    HRESULT InitResources(ComPtr<ID2D1HwndRenderTarget> render_target);
-    void DropResources();
-    void Update(float delta_time);
+    HRESULT Init() override;
+    void Update(float delta_time) override;
 
-    Transform transform {};
     // todo: add collider which has a reference to gameobject's transform
     // -------------------------------------------------------
     const float radius = 40.0f;

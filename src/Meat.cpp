@@ -33,9 +33,8 @@ void Meat::Collect()
     exists = false;
 }
 
-HRESULT Meat::InitResources(ComPtr<ID2D1HwndRenderTarget> render_target)
+HRESULT Meat::Init()
 {
-    m_pRenderTarget = render_target;
     // Create the brush.
     HRESULT hr = render_target->CreateSolidColorBrush(
         D2D1::ColorF(D2D1::ColorF::DarkRed),
@@ -43,11 +42,6 @@ HRESULT Meat::InitResources(ComPtr<ID2D1HwndRenderTarget> render_target)
     );
 
     return hr;
-}
-
-void Meat::DropResources()
-{
-    m_pMeatBrush.Reset();
 }
 
 void Meat::DrawProgressRing(float progress) {
@@ -62,15 +56,15 @@ void Meat::DrawProgressRing(float progress) {
     );
 
     // Draw the ring.
-    m_pRenderTarget->DrawEllipse(&ellipse, m_pMeatBrush.Get(), 2.0f);
-    m_pRenderTarget->FillEllipse(&ellipse, m_pMeatBrush.Get());
+    render_target->DrawEllipse(&ellipse, m_pMeatBrush.Get(), 2.0f);
+    render_target->FillEllipse(&ellipse, m_pMeatBrush.Get());
 
     // Draw the progress ring.
     D2D1_POINT_2F start_point = D2D1::Point2F(
         transform.position.x + 1.5f * radius * cosf(2 * std::numbers::pi_v<float> * progress),
         transform.position.y + 1.5f * radius * sinf(2 * std::numbers::pi_v<float> * progress)
     );
-    m_pRenderTarget->DrawLine(transform.position, start_point, m_pMeatBrush.Get(), 2.0f);
+    render_target->DrawLine(transform.position, start_point, m_pMeatBrush.Get(), 2.0f);
 
     // Draw the sections of the ring, colored yellow, green and red depending on the progress.
     // use bezier curves to draw the circle segments 
@@ -133,5 +127,5 @@ void Meat::Update(float delta_time)
 
     DrawProgressRing(time_elapsed / time_max);
 
-    m_pRenderTarget->FillEllipse(&ellipse, m_pMeatBrush.Get());
+    render_target->FillEllipse(&ellipse, m_pMeatBrush.Get());
 }
