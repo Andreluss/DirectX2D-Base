@@ -55,7 +55,7 @@ void GrillApp::SpawnMeat()
 
     // Spawn and initialize 
     m_meats[spawn_idx] = std::make_unique<Meat>(total_meat_time, Meat::Idx(spawn_idx));
-    m_meats[spawn_idx]->Init(); // todo: run automatically when creating GameObject
+    m_meats[spawn_idx]->InitGameObject(GetRenderTarget(), GetFactory()); // todo: run automatically when creating GameObject
 }
 
 void GrillApp::DrawGrill() {

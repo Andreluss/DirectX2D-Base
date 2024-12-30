@@ -25,24 +25,22 @@ private:
 
     Idx idx; 
 
-    ComPtr<ID2D1HwndRenderTarget> render_target;
     // Brush to render the meat.
     ComPtr<ID2D1SolidColorBrush> m_pMeatBrush;
 
     void DrawProgressRing(float progress);
+    HRESULT Init() override;
+
 public:
     Meat(float total_time, Idx idx) : time_to_cook(total_time * 0.5f), time_to_burn(total_time * 0.75f), time_max(total_time), idx(idx) {}
     ~Meat() = default;
+    Meat(const Meat&) = default;
+
+    void Update(float delta_time) override;
 
     // Collect the meat from the grill.
     void Collect();
 
-    // ----------- common methods for game objects -----------
-    HRESULT Init() override;
-    void Update(float delta_time) override;
-
-    // todo: add collider which has a reference to gameobject's transform
-    // -------------------------------------------------------
     const float radius = 40.0f;
     // Event published when meat disappears from the grill. 
     struct Event {
