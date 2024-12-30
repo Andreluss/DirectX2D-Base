@@ -23,7 +23,7 @@ void Meat::Collect()
     {
         event.type = Meat::Event::CollectCooked;
     }
-    else if (time_elapsed < time_max)
+    else if (time_elapsed < time_to_disappear)
     {
         event.type = Meat::Event::CollectBurnt;
     }
@@ -38,9 +38,66 @@ HRESULT Meat::Init()
     // Create the brush.
     HRESULT hr = render_target->CreateSolidColorBrush(
         D2D1::ColorF(D2D1::ColorF::DarkRed),
-        &m_pMeatBrush
+        &meatBrush
     );
 
+    return hr;
+}
+
+static HRESULT DrawArc(
+    float startAngle, float sweepAngle, float ring_radius, D2D1_POINT_2F center, 
+    ComPtr<ID2D1SolidColorBrush> brush, float stroke_width, 
+    ComPtr<ID2D1Factory> d2d_factory, 
+    ComPtr<ID2D1RenderTarget> render_target) 
+{
+    // Convert angles to radians.
+    float startAngleRad = startAngle * (3.14159f / 180.0f);
+    float sweepAngleRad = sweepAngle * (3.14159f / 180.0f);
+
+    // Calculate start and end points.
+    D2D1_POINT_2F startPoint = D2D1::Point2F(
+        center.x + ring_radius * cos(startAngleRad),
+        center.y - ring_radius * sin(startAngleRad)
+    );
+
+    D2D1_POINT_2F endPoint = D2D1::Point2F(
+        center.x + ring_radius * cos(startAngleRad + sweepAngleRad),
+        center.y - ring_radius * sin(startAngleRad + sweepAngleRad)
+    );
+
+    HRESULT hr = S_OK;
+    ComPtr<ID2D1PathGeometry> pathGeometry;
+    hr = d2d_factory->CreatePathGeometry(&pathGeometry);
+    if (SUCCEEDED(hr)) {
+        // Create the path geometry sink.
+        ComPtr<ID2D1GeometrySink> sink;
+        hr = pathGeometry->Open(&sink);
+        if (SUCCEEDED(hr)) {
+            // Start the figure.
+
+            // Draw the arc.
+            D2D1_ARC_SEGMENT arcSegment{
+                .point = endPoint,
+                .size = D2D1::SizeF(ring_radius, ring_radius),
+                .rotationAngle = 0.0f,
+                .sweepDirection = D2D1_SWEEP_DIRECTION_CLOCKWISE,
+                .arcSize = (std::abs(sweepAngle) > 180.0f) ? D2D1_ARC_SIZE_LARGE : D2D1_ARC_SIZE_SMALL
+            };
+
+            // Begin drawing the figure.
+            sink->BeginFigure(startPoint, D2D1_FIGURE_BEGIN_FILLED /*D2D1_FIGURE_BEGIN_HOLLOW*/);
+            sink->AddArc(arcSegment);
+            sink->EndFigure(D2D1_FIGURE_END_OPEN);
+
+            // Close the sink.
+            hr = sink->Close();
+        }
+
+        if (SUCCEEDED(hr)) {
+            // Draw the progress arc using the path geometry.
+            render_target->DrawGeometry(pathGeometry.Get(), brush.Get(), stroke_width);
+        }
+    }
     return hr;
 }
 
@@ -48,34 +105,176 @@ void Meat::DrawProgressRing(float progress) {
     // Clamp the progress to [0, 1].
     progress = max(0.0f, min(1.0f, progress));
 
-    // Draw the ring.
-    D2D1_ELLIPSE ellipse = D2D1::Ellipse(
-        transform.position,
-        radius,
-        radius
-    );
+    //// Draw the ring.
+    //D2D1_ELLIPSE ellipse = D2D1::Ellipse(
+    //    transform.position,
+    //    radius,
+    //    radius
+    //);
 
-    // Draw the ring.
-    render_target->DrawEllipse(&ellipse, m_pMeatBrush.Get(), 2.0f);
-    render_target->FillEllipse(&ellipse, m_pMeatBrush.Get());
+    //// Draw the ring.
+    //render_target->DrawEllipse(&ellipse, meatBrush.Get(), 2.0f);
+    //render_target->FillEllipse(&ellipse, meatBrush.Get());
 
-    // Draw the progress ring.
-    D2D1_POINT_2F start_point = D2D1::Point2F(
-        transform.position.x + 1.5f * radius * cosf(2 * std::numbers::pi_v<float> * progress),
-        transform.position.y + 1.5f * radius * sinf(2 * std::numbers::pi_v<float> * progress)
-    );
-    render_target->DrawLine(transform.position, start_point, m_pMeatBrush.Get(), 2.0f);
+    //// Draw the progress ring.
+    //D2D1_POINT_2F start_point = D2D1::Point2F(
+    //    transform.position.x + 1.5f * radius * cosf(2 * std::numbers::pi_v<float> * progress),
+    //    transform.position.y + 1.5f * radius * sinf(2 * std::numbers::pi_v<float> * progress)
+    //);
+    //render_target->DrawLine(transform.position, start_point, meatBrush.Get(), 2.0f);
 
-    // Draw the sections of the ring, colored yellow, green and red depending on the progress.
-    // use bezier curves to draw the circle segments 
+    // use arc to draw the progress ring
 
-    // https://docs.microsoft.com/en-us/windows/win32/direct2d/how-to-draw-bezier-curves
+    HRESULT hr = S_OK;
+     // Define center and radius of the ring.
+    D2D1_POINT_2F center = transform.position;
+    float ring_radius = Meat::radius * 1.2f;
 
-    auto draw_bezier = [&](D2D1_POINT_2F p0, D2D1_POINT_2F p1, D2D1_POINT_2F p2, D2D1_COLOR_F color) {
-        
-    };
+    
+    // Draw the back segments of the progress ring. 
+    if (SUCCEEDED(hr)) {
+        ComPtr<ID2D1SolidColorBrush> brush;
 
+        hr = render_target->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &brush);
+        brush->SetOpacity(0.1f);
+        if (SUCCEEDED(hr)) {
+            // Draw the back segments of the progress ring.s
+            hr = DrawArc(90.0f, -360.f * (time_to_cook / time_to_disappear), ring_radius, center, brush, 8.0f, d2d_factory, render_target);
+        }
+    }
 
+    if (SUCCEEDED(hr)) {
+        ComPtr<ID2D1SolidColorBrush> brush;
+        hr = render_target->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Green), &brush);
+        brush->SetOpacity(0.3f);
+        if (SUCCEEDED(hr)) {
+            // Draw the back segments of the progress ring.s
+            hr = DrawArc(90.0f - 360.f * (time_to_cook / time_to_disappear), 
+                         -360.f * ((time_to_burn - time_to_cook) / time_to_disappear), 
+                         ring_radius, center, brush, 8.0f, d2d_factory, render_target);
+        }
+    }
+
+    if (SUCCEEDED(hr)) {
+        ComPtr<ID2D1SolidColorBrush> brush;
+        hr = render_target->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &brush);
+        brush->SetOpacity(0.1f);
+        if (SUCCEEDED(hr)) {
+            // Draw the back segments of the progress ring.s
+            hr = DrawArc(90.0f - 360.f * (time_to_burn / time_to_disappear),
+                -360.f * ((time_to_disappear - time_to_burn) / time_to_disappear),
+                ring_radius, center, brush, 8.0f, d2d_factory, render_target);
+        }
+    }
+
+    // Draw the main progress ring.
+    if (SUCCEEDED(hr)) {
+        ComPtr<ID2D1SolidColorBrush> progressBrush;
+
+        hr = render_target->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &progressBrush);
+
+        if (SUCCEEDED(hr)) {
+            // Define angles (in degrees).
+            float startAngle = 90.0f;  // Starting at the top
+            float sweepAngle = -360.f * progress; // Progress (e.g., 75% of a full circle)
+
+            hr = DrawArc(startAngle, sweepAngle, ring_radius, center, progressBrush, 5.0f,d2d_factory, render_target);
+        }
+    }
+
+    
+
+    //// Convert angles to radians.
+    //float startAngleRad = startAngle * (3.14159f / 180.0f);
+    //float sweepAngleRad = sweepAngle * (3.14159f / 180.0f);
+
+    //// Calculate start and end points.
+    //D2D1_POINT_2F startPoint = D2D1::Point2F(
+    //    center.x + ring_radius * cos(startAngleRad),
+    //    center.y - ring_radius * sin(startAngleRad)
+    //);
+
+    //D2D1_POINT_2F endPoint = D2D1::Point2F(
+    //    center.x + ring_radius * cos(startAngleRad + sweepAngleRad),
+    //    center.y - ring_radius * sin(startAngleRad + sweepAngleRad)
+    //);
+
+    //if (SUCCEEDED(hr)) {
+    //    ComPtr<ID2D1PathGeometry> pathGeometry;
+
+    //    hr = d2d_factory->CreatePathGeometry(&pathGeometry);
+    //    if (SUCCEEDED(hr)) {
+    //        ComPtr<ID2D1GeometrySink> sink;
+    //        hr = pathGeometry->Open(&sink);
+
+    //        if (SUCCEEDED(hr)) {
+
+    //            sink->BeginFigure(startPoint, D2D1_FIGURE_BEGIN_FILLED);
+    //            D2D1_POINT_2F endPoint = D2D1::Point2F(
+    //                center.x + ring_radius * cos(startAngleRad + sweepAngleRad),
+    //                center.y - ring_radius * sin(startAngleRad + sweepAngleRad)
+    //            );
+    //            D2D1_ARC_SEGMENT arcSegment{
+    //                .point = startPoint,
+    //                .size = D2D1::SizeF(ring_radius, ring_radius),
+    //                .rotationAngle = 0.0f,
+    //                .sweepDirection = D2D1_SWEEP_DIRECTION_CLOCKWISE,
+    //                .arcSize = D2D1_ARC_SIZE_LARGE 
+    //            };
+    //            sink->AddArc(arcSegment);
+    //            sink->EndFigure(D2D1_FIGURE_END_OPEN);
+    //            hr = sink->Close();
+    //        }
+
+    //        if (SUCCEEDED(hr)) {
+    //            ComPtr<ID2D1SolidColorBrush> brush;
+    //            render_target->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Pink), &brush);
+    //            brush->SetColor(D2D1::ColorF(D2D1::ColorF::DarkGray));
+    //            brush->SetOpacity(0.8f);
+    //            render_target->DrawGeometry(pathGeometry.Get(), brush.Get(), 10.f);
+    //        }
+    //    }
+    //}
+
+    //if (SUCCEEDED(hr)) {
+    //    // create geometry
+    //    ComPtr<ID2D1PathGeometry> pathGeometry;
+    //    hr = d2d_factory->CreatePathGeometry(&pathGeometry);
+    //    if (SUCCEEDED(hr)) {
+    //        // Create the path geometry sink.
+    //        ComPtr<ID2D1GeometrySink> sink;
+    //        hr = pathGeometry->Open(&sink);
+    //        if (SUCCEEDED(hr)) {
+    //            // Start the figure.
+
+    //            // Draw the arc.
+    //            D2D1_ARC_SEGMENT arcSegment{
+    //                .point = endPoint,
+    //                .size = D2D1::SizeF(ring_radius, ring_radius),
+    //                .rotationAngle = 0.0f,
+    //                .sweepDirection = D2D1_SWEEP_DIRECTION_CLOCKWISE,
+    //                .arcSize = (sweepAngle < 180.0f) ? D2D1_ARC_SIZE_LARGE : D2D1_ARC_SIZE_SMALL
+    //            };
+
+    //            // Begin drawing the figure.
+    //            sink->BeginFigure(startPoint, D2D1_FIGURE_BEGIN_FILLED /*D2D1_FIGURE_BEGIN_HOLLOW*/);
+    //            sink->AddArc(arcSegment);
+    //            sink->EndFigure(D2D1_FIGURE_END_OPEN);
+
+    //            // Close the sink.
+    //            hr = sink->Close();
+    //        }
+
+    //        if (SUCCEEDED(hr)) {
+    //            // Set up a brush for the progress arc.
+    //            ComPtr<ID2D1SolidColorBrush> progressBrush;
+    //            render_target->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Orange), &progressBrush);
+
+    //            // Draw the progress arc using the path geometry.
+    //            render_target->DrawGeometry(pathGeometry.Get(), progressBrush.Get(), 5.0f);
+    //        }
+    //    }
+    //}
 }
 
 void Meat::Update(float delta_time)
@@ -97,17 +296,17 @@ void Meat::Update(float delta_time)
     if (time_elapsed < time_to_cook)
     {
         // Raw meat.
-        m_pMeatBrush->SetColor(D2D1::ColorF(D2D1::ColorF::DarkRed));
+        meatBrush->SetColor(D2D1::ColorF(D2D1::ColorF::DarkRed));
     }
     else if (time_elapsed < time_to_burn)
     {
         // Cooked meat.
-        m_pMeatBrush->SetColor(D2D1::ColorF(D2D1::ColorF::DarkOrange));
+        meatBrush->SetColor(D2D1::ColorF(D2D1::ColorF::DarkOrange));
     }
-    else if (time_elapsed < time_max)
+    else if (time_elapsed < time_to_disappear)
     {
         // Burnt meat.
-        m_pMeatBrush->SetColor(D2D1::ColorF(D2D1::ColorF::DarkGray));
+        meatBrush->SetColor(D2D1::ColorF(D2D1::ColorF::DarkGray));
     }
     else
     {
@@ -125,7 +324,9 @@ void Meat::Update(float delta_time)
         return;
     }
 
-    DrawProgressRing(time_elapsed / time_max);
+    DrawProgressRing(time_elapsed / time_to_disappear);
 
-    render_target->FillEllipse(&ellipse, m_pMeatBrush.Get());
+    // set opacity of meat brush 
+    meatBrush->SetOpacity(0.4f);
+    render_target->FillEllipse(&ellipse, meatBrush.Get());
 }
