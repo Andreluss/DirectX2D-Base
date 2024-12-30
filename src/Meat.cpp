@@ -5,7 +5,8 @@
 void Meat::Collect()
 {
     if (!exists) {
-        throw std::logic_error("Meat doesn't exist and can't be collected.");
+        OutputDebugString(L"Meat doesn't exist and can't be collected.");
+        return;
     }
 
     OutputDebugString(L"Meat collected.\n");
@@ -62,8 +63,8 @@ void Meat::Update(float delta_time)
     // Draw the circle.
     D2D1_ELLIPSE ellipse = D2D1::Ellipse(
         transform.position,
-        50.0f,
-        50.0f
+        radius,
+        radius
     );
     // Adjust the color of the meat.
     if (time_elapsed < time_to_cook)

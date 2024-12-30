@@ -43,7 +43,7 @@ public:
     Transform transform {};
     // todo: add collider which has a reference to gameobject's transform
     // -------------------------------------------------------
-    const float radius = 50.0f;
+    const float radius = 40.0f;
     // Event published when meat disappears from the grill. 
     enum class Event {
         CollectRaw,

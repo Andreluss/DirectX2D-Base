@@ -71,8 +71,8 @@ HRESULT App::Initialize()
                 NULL,
                 NULL,
                 NULL,
-                static_cast<int>(ceil(640.f * dpi / 96.f)),
-                static_cast<int>(ceil(480.f * dpi / 96.f)),
+                static_cast<int>(ceil(800.f * dpi / 96.f)),
+                static_cast<int>(ceil(600.f * dpi / 96.f)),
                 SWP_NOMOVE);
             ShowWindow(m_hwnd, SW_SHOWNORMAL);
             UpdateWindow(m_hwnd);

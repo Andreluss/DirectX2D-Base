@@ -5,65 +5,67 @@ void GrillApp::Update()
 {
     D2D1_SIZE_F rtSize = GetRenderTarget()->GetSize();
 
-    // Draw a grid background.
-    int width = static_cast<int>(rtSize.width);
-    int height = static_cast<int>(rtSize.height);
+    // Draw a dark green background.
+    GetRenderTarget()->Clear(D2D1::ColorF(0x225522));
 
     // set brush color to light slate gray
     m_pLightSlateGrayBrush->SetColor(D2D1::ColorF(D2D1::ColorF::LightSlateGray));
 
     // Draw two rectangles.
-    D2D1_RECT_F rectangle1 = D2D1::RectF(
-        rtSize.width / 2 - 150.0f,
-        rtSize.height / 2 - 150.0f,
-        rtSize.width / 2 + 150.0f,
-        rtSize.height / 2 + 150.0f
+    float grill_grate_size = 380.0f;
+    D2D1_RECT_F grill_grate_rect = D2D1::RectF(
+        screen.centerX() - grill_grate_size / 2,
+        screen.centerY() - grill_grate_size / 2,
+        screen.centerX() + grill_grate_size / 2,
+        screen.centerY() + grill_grate_size / 2
     );
     // Draw a filled rectangle.
-    GetRenderTarget()->FillRectangle(&rectangle1, m_pLightSlateGrayBrush.Get());
+    GetRenderTarget()->FillRectangle(&grill_grate_rect, m_pLightSlateGrayBrush.Get());
 
     // set color of brush to black
     m_pLightSlateGrayBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
 
-    for (int x = 0; x < width; x += 10)
+    for (auto x = grill_grate_rect.left; x < grill_grate_rect.right; x += 20)
     {
         GetRenderTarget()->DrawLine(
-            D2D1::Point2F(static_cast<FLOAT>(x), 0.0f),
-            D2D1::Point2F(static_cast<FLOAT>(x), rtSize.height),
+            D2D1::Point2F(x, grill_grate_rect.top),
+            D2D1::Point2F(x, grill_grate_rect.bottom),
             m_pLightSlateGrayBrush.Get(),
             0.5f
         );
     }
 
-    for (int y = 0; y < height; y += 10)
+    for (auto y = grill_grate_rect.top; y < grill_grate_rect.bottom; y += 20)
     {
         GetRenderTarget()->DrawLine(
-            D2D1::Point2F(0.0f, static_cast<FLOAT>(y)),
-            D2D1::Point2F(rtSize.width, static_cast<FLOAT>(y)),
+            D2D1::Point2F(grill_grate_rect.left, y),
+            D2D1::Point2F(grill_grate_rect.right, y),
             m_pLightSlateGrayBrush.Get(),
             0.5f
         );
     }
 
-
-    D2D1_RECT_F rectangle2 = D2D1::RectF(
-        rtSize.width / 2 - 100.0f,
-        rtSize.height / 2 - 100.0f,
-        rtSize.width / 2 + 100.0f,
-        rtSize.height / 2 + 100.0f
+    float grill_border_size = grill_grate_size + 5.0f;
+    D2D1_RECT_F grill_border_rect = D2D1::Rect(
+        rtSize.width / 2 - grill_border_size / 2,
+        rtSize.height / 2 - grill_border_size / 2,
+        rtSize.width / 2 + grill_border_size / 2,
+        rtSize.height / 2 + grill_border_size / 2
     );
-
-
-    // Draw the outline of a rectangle.
-    GetRenderTarget()->DrawRectangle(&rectangle2, m_pCornflowerBlueBrush.Get());
+    // rounded rect of grill border with 10px radius
+    GetRenderTarget()->DrawRoundedRectangle(
+        D2D1::RoundedRect(grill_border_rect, 10.0f, 10.0f),
+        m_pBlackBrush.Get(),
+        10.0f
+    );
 
     for (int i = 0; i < 16; i++) {
         if (!m_meats[i]) continue;
         // meats on 4x4 grid with 10px padding (they are 100px wide), should be relative to center of screen
         m_meats[i]->transform.position =
             D2D1::Point2F(
-                screen.centerX() + 110.0f * (i % 4 - 1.5f),
-                screen.centerY() + 110.0f * (static_cast<float>(i / 4) - 1.5f)
+                screen.centerX() + 90.0f * (i % 4 - 1.5f),
+                screen.centerY() + 90.0f * (static_cast<float>(i / 4) - 1.5f)
             );
         m_meats[i]->Update(time.deltaTime);
     }
@@ -114,8 +116,8 @@ HRESULT GrillApp::CreateDeviceResourcesUser()
     {
         // Create a blue brush.
         hr = GetRenderTarget()->CreateSolidColorBrush(
-            D2D1::ColorF(D2D1::ColorF::CornflowerBlue),
-            &m_pCornflowerBlueBrush
+            D2D1::ColorF(D2D1::ColorF::Black),
+            &m_pBlackBrush
         );
     }
 
@@ -142,7 +144,7 @@ HRESULT GrillApp::CreateDeviceResourcesUser()
 void GrillApp::DiscardDeviceResourcesUser()
 {
     m_pLightSlateGrayBrush.Reset();
-    m_pCornflowerBlueBrush.Reset();
+    m_pBlackBrush.Reset();
     for (auto& meat : m_meats) {
         if (!meat) continue;
         meat->DropResources();

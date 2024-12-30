@@ -13,7 +13,7 @@ protected:
     bool CustomMessageHandler(UINT message, WPARAM wParam, LPARAM lParam) override;
 private:
     ComPtr<ID2D1SolidColorBrush> m_pLightSlateGrayBrush;
-    ComPtr<ID2D1SolidColorBrush> m_pCornflowerBlueBrush;
+    ComPtr<ID2D1SolidColorBrush> m_pBlackBrush;
     std::vector<std::unique_ptr<Meat>> m_meats;
     std::unique_ptr<Score> score;
 };
