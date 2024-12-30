@@ -1,6 +1,7 @@
 #include "GrillApp.h"
 #include <windowsx.h>
 #include <random>
+#include <xstring>
 
 // https://stackoverflow.com/a/36527160/15597349
 static float random_float(float min, float max)
@@ -12,6 +13,25 @@ static float random_float(float min, float max)
 
 void GrillApp::UpdateGame(float delta_time)
 {
+    if (gameProgress < 1.0f && gameProgress + delta_time / gameConfig.gameDuration >= 1.0f) {
+        // Game finished! 
+        // Show message and ask if want to play again, otherwise close the app'
+        auto msg = (std::wstring(L"Game finished!\nYour score is ") + std::to_wstring(score->GetScore())) + L"\nPress OK to play again.";
+        if (MessageBox(*screen.m_hwnd_ptr, msg.c_str(), L"Game Over", MB_RETRYCANCEL | MB_ICONINFORMATION) == IDRETRY) {
+            // Restart the game
+            gameProgress = 0.0f;
+            nextMeatSpawnTime = time.time;
+            score->Restart();
+            progress_bar->Restart();
+            for (auto& meat : m_meats) {
+                meat.reset();
+            }
+            time.time = time.now();
+        }
+        else {
+            PostQuitMessage(0);
+        }
+    }
     gameProgress += delta_time / gameConfig.gameDuration;
     if (gameProgress > 1.0f) {
         gameProgress = 1.0f;
@@ -21,7 +41,7 @@ void GrillApp::UpdateGame(float delta_time)
         if (gameProgress < progress) {
             break;
         }
-        max_meats = max;
+        max_meats = max(max, max_meats);
     }
 
     if (MeatsCount() < max_meats && time.time > nextMeatSpawnTime) {
@@ -50,7 +70,7 @@ void GrillApp::SpawnMeat()
 
     // What meat to spawn
     float total_meat_time = gameConfig.meatOnGrillTime 
-        * random_float(0.3f, 1.f);
+        * random_float(0.25f, 1.f);
     Assert(total_meat_time > 0.05f && "Meat time is irreasonably <= 0.05s");
 
     // Spawn and initialize 
@@ -127,6 +147,14 @@ void GrillApp::Update()
     score->transform.position = D2D1::Point2F(10.0f, 10.0f);
     score->Update(time.deltaTime);
 
+    if (progress_bar) {
+        progress_bar->Update(time.deltaTime);
+        progress_bar->transform.position = D2D1::Point2F(
+            screen.centerX() - progress_bar->size.width / 2,
+            screen.height() - progress_bar->size.height - 30.0f
+        );
+    }
+
     UpdateGame(time.deltaTime);
 }
 
@@ -184,6 +212,11 @@ HRESULT GrillApp::CreateDeviceResourcesUser()
     if (SUCCEEDED(hr)) {
         score = std::make_unique<Score>();
         hr = score->InitGameObject(GetRenderTarget(), GetFactory());
+    }
+
+    if (SUCCEEDED(hr)) {
+        progress_bar = std::make_unique<ProgressBar>(gameConfig.gameDuration, D2D1::SizeF(400, 20));
+        hr = progress_bar->InitGameObject(GetRenderTarget(), GetFactory());
     }
 
     return hr;

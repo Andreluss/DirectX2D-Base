@@ -7,6 +7,7 @@
 class Score : public GameObject
 {
     int score{};
+    int highscore{};
 
     ComPtr<IDWriteFactory> m_pDWriteFactory;
     ComPtr<IDWriteTextFormat> m_pTextFormat;
@@ -18,6 +19,9 @@ protected:
 public:
     virtual void Update(float delta_time) override;
     void OnMeatEvent(Meat::Event event);
+    int GetScore() { return score; }
+    int getHighScore() { return highscore; }
+    void Restart();
 
     // This bounds the subscription to the lifetime of the Score object.
     EventSubscription<Meat::Event> meat_event_subscription{ [this](Meat::Event event) {

@@ -32,7 +32,7 @@ private:
     HRESULT Init() override;
 
 public:
-    Meat(float total_time, Idx idx) : time_to_cook(total_time * 0.5f), time_to_burn(total_time * 0.75f), time_to_disappear(total_time), idx(idx) {}
+    Meat(float total_time, Idx idx) : time_to_cook(total_time * 0.5f), time_to_burn(total_time * 0.7f), time_to_disappear(total_time), idx(idx) {}
     ~Meat() = default;
     Meat(const Meat&) = default;
 

@@ -2,6 +2,7 @@
 #include "App.h"
 #include "Meat.h"
 #include "Score.h"
+#include "ProgressBar.h"
 
 class GrillApp : public App {
 public:
@@ -23,22 +24,23 @@ private:
         return count;
     }
     std::unique_ptr<Score> score;
+    std::unique_ptr<ProgressBar> progress_bar;
 
     float gameProgress{};
     float nextMeatSpawnTime{};
     struct GameConfig {
         const int maxMeats = 16;
-        const float gameDuration = 60.0f;
-        const float meatOnGrillTime = 8.f;
-        const int finalMaxMeats = 10;
-        const float timeToNextSpawn = 1.0f;
+        const float gameDuration = 3.0f;
+        const float meatOnGrillTime = 6.f;
+        const int finalMaxMeats = 12;
+        const float timeToNextSpawn = 0.3f;
         std::vector<std::pair<float, int>> maxMeatsAtProgress = {
-            {0.0f, 1},
-            {0.07f, 3},
+            {0.0f, 3},
+            {0.05f, 4},
             {0.2f, 5},
             {0.3f, 6},
-            {0.4f, 8},
-            {0.6f, 9},
+            {0.4f, 7},
+            {0.6f, 8},
             {0.75f, finalMaxMeats}
         };
     } gameConfig;

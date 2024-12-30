@@ -14,7 +14,7 @@ INT WINAPI wWinMain(
    // unlikely event that HeapSetInformation fails.
     HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, NULL, 0);
 
-    if (SUCCEEDED(CoInitialize(NULL)))
+    if (SUCCEEDED(CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE)))
     {
         {
             auto app = std::make_unique<GrillApp>();

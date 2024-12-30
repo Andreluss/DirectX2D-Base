@@ -44,8 +44,8 @@ HRESULT Score::Init()
 
 void Score::Update(float /*delta_time*/)
 {
-    OutputDebugString(L"Score::Update\n");
     std::wstring score_str = std::wstring(L"Score: ") + std::to_wstring(score);
+    score_str += L"\nHighscore: " + std::to_wstring(highscore);
     render_target->DrawText(
         score_str.c_str(),
         (UINT32)score_str.size(),
@@ -59,17 +59,23 @@ void Score::OnMeatEvent(Meat::Event event)
 {
     switch (event.type) {
     case Meat::Event::CollectRaw:
-        score -= 1;
+        score -= 2;
         break;
     case Meat::Event::CollectCooked:
         score += 5;
         break;
     case Meat::Event::CollectBurnt:
-        score -= 1;
+        score += 1;
         break;
     case Meat::Event::NotCollected:
         score -= 3;
         break;
     }
+}
+
+void Score::Restart()
+{
+    highscore = max(score, highscore);
+    score = 0;
 }
 
