@@ -1,6 +1,7 @@
 #include "Meat.h"
 #include "core/EventSystem.h"
 #include <stdexcept>
+#include <numbers>
 
 void Meat::Collect()
 {
@@ -49,6 +50,40 @@ void Meat::DropResources()
     m_pMeatBrush.Reset();
 }
 
+void Meat::DrawProgressRing(float progress) {
+    // Clamp the progress to [0, 1].
+    progress = max(0.0f, min(1.0f, progress));
+
+    // Draw the ring.
+    D2D1_ELLIPSE ellipse = D2D1::Ellipse(
+        transform.position,
+        radius,
+        radius
+    );
+
+    // Draw the ring.
+    m_pRenderTarget->DrawEllipse(&ellipse, m_pMeatBrush.Get(), 2.0f);
+    m_pRenderTarget->FillEllipse(&ellipse, m_pMeatBrush.Get());
+
+    // Draw the progress ring.
+    D2D1_POINT_2F start_point = D2D1::Point2F(
+        transform.position.x + 1.5f * radius * cosf(2 * std::numbers::pi_v<float> * progress),
+        transform.position.y + 1.5f * radius * sinf(2 * std::numbers::pi_v<float> * progress)
+    );
+    m_pRenderTarget->DrawLine(transform.position, start_point, m_pMeatBrush.Get(), 2.0f);
+
+    // Draw the sections of the ring, colored yellow, green and red depending on the progress.
+    // use bezier curves to draw the circle segments 
+
+    // https://docs.microsoft.com/en-us/windows/win32/direct2d/how-to-draw-bezier-curves
+
+    auto draw_bezier = [&](D2D1_POINT_2F p0, D2D1_POINT_2F p1, D2D1_POINT_2F p2, D2D1_COLOR_F color) {
+        
+    };
+
+
+}
+
 void Meat::Update(float delta_time)
 {
     if (!exists) {
@@ -95,6 +130,8 @@ void Meat::Update(float delta_time)
         }
         return;
     }
+
+    DrawProgressRing(time_elapsed / time_max);
 
     m_pRenderTarget->FillEllipse(&ellipse, m_pMeatBrush.Get());
 }

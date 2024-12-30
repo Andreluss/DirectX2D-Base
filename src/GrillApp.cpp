@@ -183,7 +183,7 @@ HRESULT GrillApp::CreateDeviceResourcesUser()
 
     if (SUCCEEDED(hr)) {
         score = std::make_unique<Score>();
-        hr = score->InitGameObject(GetRenderTarget());
+        hr = score->InitGameObject(GetRenderTarget(), GetFactory());
     }
 
     return hr;

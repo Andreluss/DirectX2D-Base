@@ -48,7 +48,7 @@ void Score::Update(float /*delta_time*/)
     std::wstring score_str = std::wstring(L"Score: ") + std::to_wstring(score);
     render_target->DrawText(
         score_str.c_str(),
-        score_str.size(),
+        (UINT32)score_str.size(),
         m_pTextFormat.Get(),
         D2D1::RectF(transform.position.x, transform.position.y, 400, 40),
         m_pTextBrush.Get()
