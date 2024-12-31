@@ -10,6 +10,15 @@ public:
     // Process and dispatch messages
     void RunMessageLoop();
 
+    HRESULT LoadBitmapFromFile(
+        ID2D1RenderTarget* pRenderTarget,
+        IWICImagingFactory* pIWICFactory,
+        PCWSTR uri,
+        UINT destinationWidth,
+        UINT destinationHeight,
+        ComPtr<ID2D1Bitmap>* ppBitmap
+    );
+
 protected:
     // This method can be overridden to handle custom messages.
     // Returns true if the message was captured (and shouldn't be passed further).
@@ -31,6 +40,9 @@ protected:
     ComPtr<ID2D1HwndRenderTarget> GetRenderTarget() {
         return m_pRenderTarget;
     }
+    
+    // wic_factory:
+    ComPtr<IWICImagingFactory> wic_factory; 
 
     // Information about the time elapsed between frames.
     struct Time {
@@ -104,7 +116,6 @@ private:
         LPARAM lParam
     );
 
-private:
     HWND m_hwnd{};
     ComPtr<ID2D1Factory> m_pDirect2dFactory;
     ComPtr<ID2D1HwndRenderTarget> m_pRenderTarget;

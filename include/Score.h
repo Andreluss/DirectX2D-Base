@@ -12,6 +12,7 @@ class Score : public GameObject
     ComPtr<IDWriteFactory> m_pDWriteFactory;
     ComPtr<IDWriteTextFormat> m_pTextFormat;
     ComPtr<ID2D1SolidColorBrush> m_pTextBrush;
+    ComPtr<ID2D1SolidColorBrush> textBgBrush;
 
 protected:
     virtual HRESULT Init() override;

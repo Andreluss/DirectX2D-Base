@@ -131,6 +131,18 @@ void GrillApp::Update()
     // Draw a dark green background.
     GetRenderTarget()->Clear(D2D1::ColorF(0x225522));
 
+    D2D1_SIZE_F size = testBitmap->GetSize();
+    auto renderTargetSize = GetRenderTarget()->GetSize();
+    GetRenderTarget()->DrawBitmap(
+        testBitmap.Get(),
+        D2D1::RectF(
+            renderTargetSize.width - size.width,
+            renderTargetSize.height - size.height,
+            renderTargetSize.width,
+            renderTargetSize.height)
+    );
+
+    if (rand() % 3 == 3) return;
     DrawGrill();
 
     for (int i = 0; i < 16; i++) {
@@ -217,6 +229,17 @@ HRESULT GrillApp::CreateDeviceResourcesUser()
     if (SUCCEEDED(hr)) {
         progress_bar = std::make_unique<ProgressBar>(gameConfig.gameDuration, D2D1::SizeF(400, 20));
         hr = progress_bar->InitGameObject(GetRenderTarget(), GetFactory());
+    }
+
+    if (SUCCEEDED(hr)) {
+        hr = LoadBitmapFromFile(
+            GetRenderTarget().Get(),
+            wic_factory.Get(),
+            L".\\sampleImage.jpg",
+            screen.width(),
+            0,
+            &testBitmap
+        );
     }
 
     return hr;

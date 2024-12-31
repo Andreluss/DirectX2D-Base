@@ -15,12 +15,12 @@ HRESULT Score::Init()
 
     if (SUCCEEDED(hr)) {
         hr = m_pDWriteFactory->CreateTextFormat(
-            L"Verdana",
+            L"Open Sans",
             nullptr,
             DWRITE_FONT_WEIGHT_NORMAL,
             DWRITE_FONT_STYLE_NORMAL,
             DWRITE_FONT_STRETCH_NORMAL,
-            24.0f,
+            20.0f,
             L"en-us",
             &m_pTextFormat
         );
@@ -34,9 +34,19 @@ HRESULT Score::Init()
 
     if (SUCCEEDED(hr)) {
         hr = render_target->CreateSolidColorBrush(
-            D2D1::ColorF(D2D1::ColorF::Red),
+            D2D1::ColorF(D2D1::ColorF::White),
             &m_pTextBrush
         );
+    }
+
+    if (SUCCEEDED(hr)) {
+        hr = render_target->CreateSolidColorBrush(
+            D2D1::ColorF(D2D1::ColorF::Black),
+            &textBgBrush
+        );
+    }
+    if (SUCCEEDED(hr)) {
+        textBgBrush->SetOpacity(0.5f);
     }
 
     return hr;
@@ -44,13 +54,24 @@ HRESULT Score::Init()
 
 void Score::Update(float /*delta_time*/)
 {
+    float bar_height = 75;
+    // Draw the top UI bar opacity 0.8 black 
+    auto size = render_target->GetSize();
+    render_target->FillRectangle(
+        D2D1::RectF(
+            0, 0,
+            size.width,
+            bar_height
+        ),
+        textBgBrush.Get()
+    );
     std::wstring score_str = std::wstring(L"Score: ") + std::to_wstring(score);
     score_str += L"\nHighscore: " + std::to_wstring(highscore);
     render_target->DrawText(
         score_str.c_str(),
         (UINT32)score_str.size(),
         m_pTextFormat.Get(),
-        D2D1::RectF(transform.position.x, transform.position.y, 400, 40),
+        D2D1::RectF(transform.position.x, transform.position.y, 400, transform.position.y + bar_height - 10),
         m_pTextBrush.Get()
     );
 }
