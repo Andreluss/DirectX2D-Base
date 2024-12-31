@@ -15,14 +15,19 @@ class Score : public GameObject
     ComPtr<ID2D1SolidColorBrush> textBgBrush;
 
 protected:
-    virtual HRESULT Init() override;
+    virtual HRESULT InitResources() override;
 
 public:
-    virtual void Update(float delta_time) override;
+    virtual void Update() override;
     void OnMeatEvent(Meat::Event event);
     int GetScore() { return score; }
     int getHighScore() { return highscore; }
     void Restart();
+
+    Score()
+    {
+        InitResources();
+    }
 
     // This bounds the subscription to the lifetime of the Score object.
     EventSubscription<Meat::Event> meat_event_subscription{ [this](Meat::Event event) {

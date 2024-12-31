@@ -17,16 +17,16 @@ void GrillApp::UpdateGame(float delta_time)
         // Game finished! 
         // Show message and ask if want to play again, otherwise close the app'
         auto msg = (std::wstring(L"Game finished!\nYour score is ") + std::to_wstring(score->GetScore())) + L"\nPress OK to play again.";
-        if (MessageBox(*screen.m_hwnd_ptr, msg.c_str(), L"Game Over", MB_RETRYCANCEL | MB_ICONINFORMATION) == IDRETRY) {
+        if (MessageBox(Screen::GetHwnd(), msg.c_str(), L"Game Over", MB_RETRYCANCEL | MB_ICONINFORMATION) == IDRETRY) {
             // Restart the game
             gameProgress = 0.0f;
-            nextMeatSpawnTime = time.time;
+            nextMeatSpawnTime = Time::time;
             score->Restart();
             progress_bar->Restart();
             for (auto& meat : m_meats) {
                 meat.reset();
             }
-            time.time = time.now();
+            Time::time = Time::now();
         }
         else {
             PostQuitMessage(0);
@@ -44,15 +44,15 @@ void GrillApp::UpdateGame(float delta_time)
         max_meats = max(max, max_meats);
     }
 
-    if (MeatsCount() < max_meats && time.time > nextMeatSpawnTime) {
+    if (MeatsCount() < max_meats && Time::time > nextMeatSpawnTime) {
         SpawnMeat();
     }
 }
 
 void GrillApp::SpawnMeat()
 {
-    Assert(nextMeatSpawnTime <= time.time && "Spawned meat too early");
-    nextMeatSpawnTime = time.time + gameConfig.timeToNextSpawn;
+    Assert(nextMeatSpawnTime <= Time::time && "Spawned meat too early");
+    nextMeatSpawnTime = Time::time + gameConfig.timeToNextSpawn;
 
     // Where to spawn
     int spawn_idx = [&]() {
@@ -75,16 +75,16 @@ void GrillApp::SpawnMeat()
 
     // Spawn and initialize 
     m_meats[spawn_idx] = std::make_unique<Meat>(total_meat_time, Meat::Idx(spawn_idx));
-    m_meats[spawn_idx]->InitGameObject(GetRenderTarget(), GetFactory()); // todo: run automatically when creating GameObject
+    //m_meats[spawn_idx]->InitGameObject(GetRenderTarget(), GetFactory()); // todo: run automatically when creating GameObject
 }
 
 void GrillApp::DrawGrill() {
     float grill_grate_size = 380.0f;
     D2D1_RECT_F grill_grate_rect = D2D1::RectF(
-        screen.centerX() - grill_grate_size / 2,
-        screen.centerY() - grill_grate_size / 2,
-        screen.centerX() + grill_grate_size / 2,
-        screen.centerY() + grill_grate_size / 2
+        Screen::centerX() - grill_grate_size / 2,
+        Screen::centerY() - grill_grate_size / 2,
+        Screen::centerX() + grill_grate_size / 2,
+        Screen::centerY() + grill_grate_size / 2
     );
     m_pLightSlateGrayBrush->SetColor(D2D1::ColorF(D2D1::ColorF::LightSlateGray));
     GetRenderTarget()->FillRectangle(&grill_grate_rect, m_pLightSlateGrayBrush.Get());
@@ -112,10 +112,10 @@ void GrillApp::DrawGrill() {
 
     float grill_border_size = grill_grate_size + 5.0f;
     D2D1_RECT_F grill_border_rect = D2D1::Rect(
-        screen.centerX() - grill_border_size / 2,
-        screen.centerY() - grill_border_size / 2,
-        screen.centerX() + grill_border_size / 2,
-        screen.centerY() + grill_border_size / 2
+        Screen::centerX() - grill_border_size / 2,
+        Screen::centerY() - grill_border_size / 2,
+        Screen::centerX() + grill_border_size / 2,
+        Screen::centerY() + grill_border_size / 2
     );
 
     // rounded rect of grill border with 10px radius
@@ -142,7 +142,6 @@ void GrillApp::Update()
             renderTargetSize.height)
     );
 
-    if (rand() % 3 == 3) return;
     DrawGrill();
 
     for (int i = 0; i < 16; i++) {
@@ -150,24 +149,24 @@ void GrillApp::Update()
         // meats on 4x4 grid with, relative to center of screen
         m_meats[i]->transform.position =
             D2D1::Point2F(
-                screen.centerX() + 90.0f * (i % 4 - 1.5f),
-                screen.centerY() + 90.0f * (static_cast<float>(i / 4) - 1.5f)
+                Screen::centerX() + 90.0f * (i % 4 - 1.5f),
+                Screen::centerY() + 90.0f * (static_cast<float>(i / 4) - 1.5f)
             );
-        m_meats[i]->Update(time.deltaTime);
+        m_meats[i]->Update();
     }
 
     score->transform.position = D2D1::Point2F(10.0f, 10.0f);
-    score->Update(time.deltaTime);
+    score->Update();
 
     if (progress_bar) {
-        progress_bar->Update(time.deltaTime);
+        progress_bar->Update();
         progress_bar->transform.position = D2D1::Point2F(
-            screen.centerX() - progress_bar->size.width / 2,
-            screen.height() - progress_bar->size.height - 30.0f
+            Screen::centerX() - progress_bar->size.width / 2,
+            Screen::height() - progress_bar->size.height - 30.0f
         );
     }
 
-    UpdateGame(time.deltaTime);
+    UpdateGame(Time::deltaTime);
 }
 
 bool GrillApp::CustomMessageHandler(UINT message, WPARAM /*wParam*/, LPARAM lParam)
@@ -198,7 +197,7 @@ bool GrillApp::CustomMessageHandler(UINT message, WPARAM /*wParam*/, LPARAM lPar
     return false;
 }
 
-HRESULT GrillApp::CreateDeviceResourcesUser()
+HRESULT GrillApp::InitApp()
 {
     // Create a gray brush.
     HRESULT hr = S_OK;
@@ -223,12 +222,12 @@ HRESULT GrillApp::CreateDeviceResourcesUser()
 
     if (SUCCEEDED(hr)) {
         score = std::make_unique<Score>();
-        hr = score->InitGameObject(GetRenderTarget(), GetFactory());
+        //hr = score->InitGameObject(GetRenderTarget(), GetFactory());
     }
 
     if (SUCCEEDED(hr)) {
         progress_bar = std::make_unique<ProgressBar>(gameConfig.gameDuration, D2D1::SizeF(400, 20));
-        hr = progress_bar->InitGameObject(GetRenderTarget(), GetFactory());
+        //hr = progress_bar->InitGameObject(GetRenderTarget(), GetFactory());
     }
 
     if (SUCCEEDED(hr)) {
@@ -236,7 +235,7 @@ HRESULT GrillApp::CreateDeviceResourcesUser()
             GetRenderTarget().Get(),
             wic_factory.Get(),
             L".\\sampleImage.jpg",
-            screen.width(),
+            (int)Screen::width(),
             0,
             &testBitmap
         );
@@ -245,7 +244,7 @@ HRESULT GrillApp::CreateDeviceResourcesUser()
     return hr;
 }
 
-void GrillApp::DiscardDeviceResourcesUser()
+void GrillApp::DropApp()
 {
     m_pLightSlateGrayBrush.Reset();
     m_pBlackBrush.Reset();

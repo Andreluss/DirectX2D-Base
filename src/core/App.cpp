@@ -1,5 +1,19 @@
 // Source adapted from: https://learn.microsoft.com/en-us/windows/win32/direct2d/direct2d-quickstart#part-2-implement-the-class-infrastructure
-#include "App.h"
+#include "core/App.h"
+#include "core/EventSystem.h"
+
+// Statics initialization
+float App::Config::maxFPS{ 60.0f };
+float App::Time::time = App::Time::now();
+float App::Time::deltaTime{};
+ComPtr<ID2D1Factory> App::d2d1_factory{ nullptr };
+ComPtr<ID2D1HwndRenderTarget> App::d2d1_render_target{ nullptr };
+bool App::isLoaded{ false };
+HWND App::hwnd_{};
+RECT App::Screen::rc{};
+float App::Config::screen_height = 600;
+float App::Config::screen_width = 800;
+
 
 void App::RunMessageLoop()
 {
@@ -11,8 +25,8 @@ void App::RunMessageLoop()
             DispatchMessage(&msg);
         }
         // Trigger a redraw with FPS cap. 
-        else if (time.now() - time.time >= 1.0 / config.maxFPS) {
-            InvalidateRect(m_hwnd, NULL, TRUE);
+        else if (Time::now() - Time::time >= 1.0 / Config::maxFPS) {
+            InvalidateRect(hwnd_, NULL, TRUE);
         }
     } while (msg.message != WM_QUIT);
 }
@@ -21,7 +35,7 @@ void App::RunMessageLoop()
 /// Example usage (Create a bitmap by loading it from a file:
 /// 
 /// hr = LoadBitmapFromFile(
-///     m_pRenderTarget,
+///     d2d1_render_target,
 ///     m_pWICFactory,
 ///     L".\\sampleImage.jpg",
 ///     100,
@@ -174,7 +188,7 @@ HRESULT App::Initialize()
         // the window is created on). Then we use SetWindowPos to resize it to the
         // correct DPI-scaled size, then we use ShowWindow to show it.
 
-        m_hwnd = CreateWindow(
+        hwnd_ = CreateWindow(
             L"D2DApp",
             L"Direct2D demo application",
             WS_OVERLAPPEDWINDOW,
@@ -187,22 +201,22 @@ HRESULT App::Initialize()
             HINST_THISCOMPONENT,
             this);
 
-        if (m_hwnd)
+        if (hwnd_)
         {
             // Because the SetWindowPos function takes its size in pixels, we
             // obtain the window's DPI, and use it to scale the window size.
-            float dpi = static_cast<float>(GetDpiForWindow(m_hwnd));
+            float dpi = static_cast<float>(GetDpiForWindow(hwnd_));
 
             SetWindowPos(
-                m_hwnd,
+                hwnd_,
                 NULL,
                 NULL,
                 NULL,
-                static_cast<int>(ceil(800.f * dpi / 96.f)),
-                static_cast<int>(ceil(600.f * dpi / 96.f)),
+                static_cast<int>(ceil(App::Config::screen_width * dpi / 96.f)),
+                static_cast<int>(ceil(App::Config::screen_height * dpi / 96.f)),
                 SWP_NOMOVE);
-            ShowWindow(m_hwnd, SW_SHOWNORMAL);
-            UpdateWindow(m_hwnd);
+            ShowWindow(hwnd_, SW_SHOWNORMAL);
+            UpdateWindow(hwnd_);
         }
     }
 
@@ -214,7 +228,7 @@ HRESULT App::CreateDeviceIndependentResources()
     HRESULT hr = S_OK;
 
     // Create a Direct2D factory.
-    hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, m_pDirect2dFactory.GetAddressOf());
+    hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, d2d1_factory.GetAddressOf());
 
     if (SUCCEEDED(hr))
     {
@@ -233,10 +247,10 @@ HRESULT App::CreateDeviceResources()
 {
     HRESULT hr = S_OK;
 
-    if (!m_pRenderTarget)
+    if (!d2d1_render_target)
     {
         RECT rc;
-        GetClientRect(m_hwnd, &rc);
+        GetClientRect(hwnd_, &rc);
 
         D2D1_SIZE_U size = D2D1::SizeU(
             rc.right - rc.left,
@@ -244,15 +258,17 @@ HRESULT App::CreateDeviceResources()
         );
 
         // Create a Direct2D render target.
-        hr = m_pDirect2dFactory->CreateHwndRenderTarget(
+        hr = d2d1_factory->CreateHwndRenderTarget(
             D2D1::RenderTargetProperties(),
-            D2D1::HwndRenderTargetProperties(m_hwnd, size),
-            &m_pRenderTarget
+            D2D1::HwndRenderTargetProperties(hwnd_, size),
+            &d2d1_render_target
         );
 
         if (SUCCEEDED(hr))
         {
-            hr = CreateDeviceResourcesUser();
+            isLoaded = true;
+            hr = InitApp();
+            event_system<EventInit>.Publish(EventInit{});
         }
     }
 
@@ -261,8 +277,9 @@ HRESULT App::CreateDeviceResources()
 
 void App::DiscardDeviceResources()
 {
-    m_pRenderTarget.Reset();
-    DiscardDeviceResourcesUser();
+    isLoaded = false;
+    d2d1_render_target.Reset();
+    DropApp();
 }
 
 HRESULT App::OnRender()
@@ -270,20 +287,20 @@ HRESULT App::OnRender()
     HRESULT hr = S_OK;
 
     // Update frame time.
-    float time_now = time.now();
-    time.deltaTime = time_now - time.time;
-    time.time = time_now;
+    float time_now = Time::now();
+    Time::deltaTime = time_now - Time::time;
+    Time::time = time_now;
 
     hr = CreateDeviceResources();
     if (SUCCEEDED(hr))
     {
-        m_pRenderTarget->BeginDraw();
-        m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
-        m_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+        d2d1_render_target->BeginDraw();
+        d2d1_render_target->SetTransform(D2D1::Matrix3x2F::Identity());
+        d2d1_render_target->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
         Update();
 
-        hr = m_pRenderTarget->EndDraw();
+        hr = d2d1_render_target->EndDraw();
     }
 
     if (hr == D2DERR_RECREATE_TARGET)
@@ -301,12 +318,12 @@ void App::Update()
 
 void App::OnResize(UINT width, UINT height)
 {
-    if (m_pRenderTarget)
+    if (d2d1_render_target)
     {
         // Note: This method can fail, but it's okay to ignore the
         // error here, because the error will be returned again
         // the next time EndDraw is called.
-        m_pRenderTarget->Resize(D2D1::SizeU(width, height));
+        d2d1_render_target->Resize(D2D1::SizeU(width, height));
     }
 }
 

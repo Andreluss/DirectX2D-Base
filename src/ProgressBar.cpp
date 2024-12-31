@@ -1,15 +1,15 @@
 #include "ProgressBar.h"
 
-HRESULT ProgressBar::Init()
+HRESULT ProgressBar::InitResources()
 {
     HRESULT hr = S_OK;
-    hr = render_target->CreateSolidColorBrush(
+    hr = App::GetRenderTarget()->CreateSolidColorBrush(
         D2D1::ColorF(D2D1::ColorF::Black),
         &border_brush
     );
     if (SUCCEEDED(hr))
     {
-        hr = render_target->CreateSolidColorBrush(
+        hr = App::GetRenderTarget()->CreateSolidColorBrush(
             D2D1::ColorF(D2D1::ColorF::White),
             &fill_brush
         );
@@ -17,9 +17,9 @@ HRESULT ProgressBar::Init()
     return hr;
 }
 
-void ProgressBar::Update(float delta_time)
+void ProgressBar::Update()
 {
-    elapsed_time += delta_time;
+    elapsed_time += Time::deltaTime;
     float progress = min(1.0f, elapsed_time / duration);
     // Draw progress bar inside rect and outline
     D2D1_RECT_F rect = D2D1::RectF(
@@ -28,7 +28,7 @@ void ProgressBar::Update(float delta_time)
         transform.position.x + size.width,
         transform.position.y + size.height
     );
-    render_target->FillRectangle(
+    App::GetRenderTarget()->FillRectangle(
         D2D1::RectF(
             rect.left + 2.0f,
             rect.top + 2.0f,
@@ -37,7 +37,7 @@ void ProgressBar::Update(float delta_time)
         ),
         fill_brush.Get()
     );
-    render_target->DrawRectangle(
+    App::GetRenderTarget()->DrawRectangle(
         rect,
         border_brush.Get(),
         4.0f

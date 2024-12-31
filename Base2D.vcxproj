@@ -19,8 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\App.h" />
     <ClInclude Include="include\common.h" />
+    <ClInclude Include="include\core\App.h" />
     <ClInclude Include="include\core\Collider.h" />
     <ClInclude Include="include\core\EventSystem.h" />
     <ClInclude Include="include\core\GameObject.h" />
@@ -32,7 +32,7 @@
     <ClInclude Include="include\WinMain.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\App.cpp" />
+    <ClCompile Include="src\core\App.cpp" />
     <ClCompile Include="src\core\Collider.cpp" />
     <ClCompile Include="src\core\EventSystem.cpp" />
     <ClCompile Include="src\core\GameObject.cpp" />

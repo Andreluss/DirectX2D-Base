@@ -1,7 +1,7 @@
 #include "Score.h"
 #include <xstring>
 
-HRESULT Score::Init()
+HRESULT Score::InitResources()
 {
     OutputDebugString(L"Score::Init\n");
 
@@ -33,14 +33,14 @@ HRESULT Score::Init()
     }
 
     if (SUCCEEDED(hr)) {
-        hr = render_target->CreateSolidColorBrush(
+        hr = App::GetRenderTarget()->CreateSolidColorBrush(
             D2D1::ColorF(D2D1::ColorF::White),
             &m_pTextBrush
         );
     }
 
     if (SUCCEEDED(hr)) {
-        hr = render_target->CreateSolidColorBrush(
+        hr = App::GetRenderTarget()->CreateSolidColorBrush(
             D2D1::ColorF(D2D1::ColorF::Black),
             &textBgBrush
         );
@@ -52,12 +52,12 @@ HRESULT Score::Init()
     return hr;
 }
 
-void Score::Update(float /*delta_time*/)
+void Score::Update()
 {
     float bar_height = 75;
     // Draw the top UI bar opacity 0.8 black 
-    auto size = render_target->GetSize();
-    render_target->FillRectangle(
+    auto size = App::GetRenderTarget()->GetSize();
+    App::GetRenderTarget()->FillRectangle(
         D2D1::RectF(
             0, 0,
             size.width,
@@ -67,7 +67,7 @@ void Score::Update(float /*delta_time*/)
     );
     std::wstring score_str = std::wstring(L"Score: ") + std::to_wstring(score);
     score_str += L"\nHighscore: " + std::to_wstring(highscore);
-    render_target->DrawText(
+    App::GetRenderTarget()->DrawText(
         score_str.c_str(),
         (UINT32)score_str.size(),
         m_pTextFormat.Get(),

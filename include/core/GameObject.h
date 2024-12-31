@@ -1,20 +1,31 @@
 #pragma once
 #include "core/Transform.h"
+#include "core/EventSystem.h"
+#include "core/App.h"
 
+/// <summary>
+/// Base for all objects that react to:
+/// - InitResources() (reloads device-dependent resources)
+/// - Update() (is called every frame with App::Time::deltaTime interval)
+/// </summary>
 class GameObject
 {
-protected:
-    virtual HRESULT Init() = 0;
-    ComPtr<ID2D1HwndRenderTarget> render_target;
-    ComPtr<ID2D1Factory> d2d_factory;
 public:
     Transform transform {};
-    virtual void Update(float delta_time) = 0;
-    HRESULT InitGameObject(ComPtr<ID2D1HwndRenderTarget> _render_target, ComPtr<ID2D1Factory> _factory) {
-        render_target = _render_target;
-        d2d_factory = _factory;
-        return Init();
-    }
-    //virtual void Drop() = 0;
+    virtual HRESULT InitResources() = 0;
+    virtual void Update() = 0;
+private:
+    using Time = App::Time;
+
+    EventSubscription<App::EventUpdate> event_update_subscription{
+        [this](App::EventUpdate) {
+            Update();
+        }
+    };
+    EventSubscription<App::EventInit> event_init_subscription{
+        [this](App::EventInit)->void {
+            this->InitResources();
+        }
+    };
 };
 
