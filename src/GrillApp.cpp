@@ -79,7 +79,7 @@ void GrillApp::SpawnMeat()
 }
 
 void GrillApp::DrawGrill() {
-    float grill_grate_size = 380.0f;
+    float grill_grate_size = 400.0f;
     D2D1_RECT_F grill_grate_rect = D2D1::RectF(
         Screen::centerX() - grill_grate_size / 2,
         Screen::centerY() - grill_grate_size / 2,
@@ -132,14 +132,11 @@ void GrillApp::Update()
     GetRenderTarget()->Clear(D2D1::ColorF(0x225522));
 
     D2D1_SIZE_F size = testBitmap->GetSize();
-    auto renderTargetSize = GetRenderTarget()->GetSize();
     GetRenderTarget()->DrawBitmap(
         testBitmap.Get(),
         D2D1::RectF(
-            renderTargetSize.width - size.width,
-            renderTargetSize.height - size.height,
-            renderTargetSize.width,
-            renderTargetSize.height)
+            Screen::width() - size.width, Screen::height() - size.height,
+            Screen::width(), Screen::height())
     );
 
     DrawGrill();
@@ -152,14 +149,14 @@ void GrillApp::Update()
                 Screen::centerX() + 90.0f * (i % 4 - 1.5f),
                 Screen::centerY() + 90.0f * (static_cast<float>(i / 4) - 1.5f)
             );
-        m_meats[i]->Update();
+        //m_meats[i]->Update();
     }
 
     score->transform.position = D2D1::Point2F(10.0f, 10.0f);
-    score->Update();
+    //score->Update();
 
     if (progress_bar) {
-        progress_bar->Update();
+        //progress_bar->Update();
         progress_bar->transform.position = D2D1::Point2F(
             Screen::centerX() - progress_bar->size.width / 2,
             Screen::height() - progress_bar->size.height - 30.0f
@@ -167,6 +164,8 @@ void GrillApp::Update()
     }
 
     UpdateGame(Time::deltaTime);
+
+    event_system<EventUpdate>.Publish({});
 }
 
 bool GrillApp::CustomMessageHandler(UINT message, WPARAM /*wParam*/, LPARAM lParam)

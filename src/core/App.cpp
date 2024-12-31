@@ -312,10 +312,6 @@ HRESULT App::OnRender()
     return hr;
 }
 
-void App::Update()
-{
-}
-
 void App::OnResize(UINT width, UINT height)
 {
     if (d2d1_render_target)

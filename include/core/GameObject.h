@@ -12,9 +12,9 @@ class GameObject
 {
 public:
     Transform transform {};
+private:
     virtual HRESULT InitResources() = 0;
     virtual void Update() = 0;
-private:
     using Time = App::Time;
 
     EventSubscription<App::EventUpdate> event_update_subscription{

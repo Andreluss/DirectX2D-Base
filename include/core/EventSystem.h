@@ -18,8 +18,9 @@ public:
     }
     void Publish(MessageType message)
     {
-        for (auto& [_, subscriber] : subscribers)
-        {
+        // loop manually witih indices to prevent invalidated operator access
+        for (int i = 0; i < subscribers.size(); i++) {
+            auto& [_, subscriber] = subscribers[i];
             subscriber(message);
         }
     }

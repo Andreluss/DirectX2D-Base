@@ -6,6 +6,7 @@ class App
 public:
     struct EventInit {};
     struct EventUpdate {};
+    struct EventDraw {};
     // Information about the time elapsed between frames.
     struct Time {
         static float time;
@@ -54,8 +55,8 @@ protected:
         return false;
     }
 
-    virtual void Update(); // float deltaTime?
-    virtual HRESULT InitApp() = 0; // todo-soon: pass getters here only?
+    virtual void Update() = 0;
+    virtual HRESULT InitApp() = 0;
     virtual void DropApp() = 0;
 
 

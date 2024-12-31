@@ -14,11 +14,10 @@ class Score : public GameObject
     ComPtr<ID2D1SolidColorBrush> m_pTextBrush;
     ComPtr<ID2D1SolidColorBrush> textBgBrush;
 
-protected:
     virtual HRESULT InitResources() override;
+    virtual void Update() override;
 
 public:
-    virtual void Update() override;
     void OnMeatEvent(Meat::Event event);
     int GetScore() { return score; }
     int getHighScore() { return highscore; }
