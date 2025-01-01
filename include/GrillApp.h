@@ -31,9 +31,9 @@ private:
     float nextMeatSpawnTime{};
     struct GameConfig {
         const int maxMeats = 16;
-        const float gameDuration = 3.0f;
+        const float gameDuration = 8.0f;
         const float meatOnGrillTime = 6.f;
-        const int finalMaxMeats = 12;
+        const int finalMaxMeats = 10;
         const float timeToNextSpawn = 0.3f;
         std::vector<std::pair<float, int>> maxMeatsAtProgress = {
             {0.0f, 3},

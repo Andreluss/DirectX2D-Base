@@ -41,6 +41,10 @@ HRESULT Meat::InitResources()
         &meatBrush
     );
 
+    if (SUCCEEDED(hr)) {
+        hr = App::Resources::GetBitmap(BitmapPaths::meat_test, &meatBitmap);
+    }
+
     return hr;
 }
 
@@ -101,26 +105,6 @@ static HRESULT DrawArc(
 void Meat::DrawProgressRing(float progress) {
     // Clamp the progress to [0, 1].
     progress = max(0.0f, min(1.0f, progress));
-
-    //// Draw the ring.
-    //D2D1_ELLIPSE ellipse = D2D1::Ellipse(
-    //    transform.position,
-    //    radius,
-    //    radius
-    //);
-
-    //// Draw the ring.
-    //App::GetRenderTarget()->DrawEllipse(&ellipse, meatBrush.Get(), 2.0f);
-    //App::GetRenderTarget()->FillEllipse(&ellipse, meatBrush.Get());
-
-    //// Draw the progress ring.
-    //D2D1_POINT_2F start_point = D2D1::Point2F(
-    //    transform.position.x + 1.5f * radius * cosf(2 * std::numbers::pi_v<float> * progress),
-    //    transform.position.y + 1.5f * radius * sinf(2 * std::numbers::pi_v<float> * progress)
-    //);
-    //App::GetRenderTarget()->DrawLine(transform.position, start_point, meatBrush.Get(), 2.0f);
-
-    // use arc to draw the progress ring
 
     HRESULT hr = S_OK;
      // Define center and radius of the ring.
@@ -236,6 +220,16 @@ void Meat::Draw()
     DrawProgressRing(time_elapsed / time_to_disappear);
 
     // set opacity of meat brush 
-    meatBrush->SetOpacity(0.4f);
-    App::GetRenderTarget()->FillEllipse(&ellipse, meatBrush.Get());
+    meatBrush->SetOpacity(0.2f);
+    //App::GetRenderTarget()->FillEllipse(&ellipse, meatBrush.Get());
+    // Draw the meat bitmap.
+    App::GetRenderTarget()->DrawBitmap(
+        meatBitmap.Get(),
+        D2D1::RectF(
+            transform.position.x - radius,
+            transform.position.y - radius,
+            transform.position.x + radius,
+            transform.position.y + radius
+        )
+    );
 }

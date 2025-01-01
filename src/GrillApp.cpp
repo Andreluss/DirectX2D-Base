@@ -232,13 +232,10 @@ HRESULT GrillApp::InitApp()
 
     if (SUCCEEDED(hr)) {
         hr = LoadBitmapFromFile(
-            GetRenderTarget().Get(),
-            wic_factory.Get(),
-            L".\\sampleImage.jpg",
+            L".\\resources\\sampleImage.jpg",
             (int)Screen::width(),
             0,
-            &testBitmap
-        );
+            &testBitmap);
     }
 
     return hr;

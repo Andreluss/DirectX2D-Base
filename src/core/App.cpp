@@ -9,11 +9,13 @@ float App::Time::time = App::Time::now();
 float App::Time::deltaTime{};
 ComPtr<ID2D1Factory> App::d2d1_factory{ nullptr };
 ComPtr<ID2D1HwndRenderTarget> App::d2d1_render_target{ nullptr };
+IWICImagingFactory* App::wic_factory{ nullptr };
 bool App::isLoaded{ false };
 HWND App::hwnd_{};
 RECT App::Screen::rc{};
 float App::Config::screen_height = 600;
 float App::Config::screen_width = 800;
+std::unordered_map<std::wstring, ComPtr<ID2D1Bitmap>> App::Resources::bitmaps{};
 
 void App::RunMessageLoop()
 {
@@ -42,10 +44,7 @@ void App::RunMessageLoop()
 ///     0,
 ///     &m_pAnotherBitmap
 ///
-HRESULT App::LoadBitmapFromFile(
-    ID2D1RenderTarget* pRenderTarget,
-    IWICImagingFactory* pIWICFactory,
-    PCWSTR uri,
+HRESULT App::LoadBitmapFromFile(PCWSTR uri,
     UINT destinationWidth,
     UINT destinationHeight,
     ComPtr<ID2D1Bitmap>* ppBitmap
@@ -59,7 +58,7 @@ HRESULT App::LoadBitmapFromFile(
     IWICFormatConverter* pConverter = NULL;
     IWICBitmapScaler* pScaler = NULL;
 
-    hr = pIWICFactory->CreateDecoderFromFilename(
+    hr = wic_factory->CreateDecoderFromFilename(
         uri,
         NULL,
         GENERIC_READ,
@@ -76,7 +75,7 @@ HRESULT App::LoadBitmapFromFile(
     {
         // Convert the image format to 32bppPBGRA
         // (DXGI_FORMAT_B8G8R8A8_UNORM + D2D1_ALPHA_MODE_PREMULTIPLIED).
-        hr = pIWICFactory->CreateFormatConverter(&pConverter);
+        hr = wic_factory->CreateFormatConverter(&pConverter);
     }
     if (SUCCEEDED(hr))
     {
@@ -99,7 +98,7 @@ HRESULT App::LoadBitmapFromFile(
                     destinationHeight = static_cast<UINT>(scalar * static_cast<FLOAT>(originalHeight));
                 }
 
-                hr = pIWICFactory->CreateBitmapScaler(&pScaler);
+                hr = wic_factory->CreateBitmapScaler(&pScaler);
                 if (SUCCEEDED(hr))
                 {
                     hr = pScaler->Initialize(
@@ -138,7 +137,7 @@ HRESULT App::LoadBitmapFromFile(
     {
         // Create a Direct2D bitmap from the WIC bitmap.
         ID2D1Bitmap* raw_pBitmap{ nullptr };
-        hr = pRenderTarget->CreateBitmapFromWicBitmap(
+        hr = GetRenderTarget()->CreateBitmapFromWicBitmap(
             pConverter,
             NULL,
             &raw_pBitmap
@@ -279,6 +278,7 @@ void App::DiscardDeviceResources()
 {
     isLoaded = false;
     d2d1_render_target.Reset();
+    //Resources::Reset();
     DropApp();
 }
 

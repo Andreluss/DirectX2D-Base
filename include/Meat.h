@@ -7,6 +7,12 @@
 
 class Meat : public GameObject
 {
+    struct BitmapPaths {
+        static constexpr PCWSTR meat_raw = L".\\resources\\meat_raw.png";
+        static constexpr PCWSTR meat_cooked = L".\\resources\\meat_cooked.png";
+        static constexpr PCWSTR meat_burnt = L".\\resources\\meat_burnt.png";
+        static constexpr PCWSTR meat_test = L".\\resources\\meat.png";
+    };
 public:
     using Idx = int;
     Meat(float total_time, Idx idx) : time_to_cook(total_time * 0.5f), time_to_burn(total_time * 0.7f), time_to_disappear(total_time), idx(idx) {
@@ -46,6 +52,7 @@ private:
 
     // Brush to render the meat.
     ComPtr<ID2D1SolidColorBrush> meatBrush;
+    ComPtr<ID2D1Bitmap> meatBitmap{};
 
     void DrawProgressRing(float progress);
 

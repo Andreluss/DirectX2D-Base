@@ -1,5 +1,6 @@
 #pragma once
 #include "common.h"
+#include <unordered_map>
 
 class App
 {
@@ -33,6 +34,28 @@ public:
         return d2d1_render_target;
     }
     static bool IsLoaded() { return isLoaded; }
+    class Resources {
+        static std::unordered_map<std::wstring, ComPtr<ID2D1Bitmap>> bitmaps;
+    public:
+        static void Reset() { 
+            bitmaps.clear(); 
+        }
+        static HRESULT GetBitmap(PCWSTR uri, ComPtr<ID2D1Bitmap>* ppBitmap) {
+            auto it = bitmaps.find(uri);
+            if (it != bitmaps.end()) {
+                *ppBitmap = it->second;
+                return S_OK;
+            }
+            else {
+                auto hr = LoadBitmapFromFile(uri, 0, 0, ppBitmap);
+                if (FAILED(hr)) {
+                    return hr;
+                }
+                bitmaps[uri] = *ppBitmap;
+                return hr;
+            }
+        }
+    };
 public:
     // Register the window class and call methods for instantiating drawing resources
     HRESULT Initialize();
@@ -40,10 +63,7 @@ public:
     // Process and dispatch messages
     void RunMessageLoop();
 
-    HRESULT LoadBitmapFromFile(
-        ID2D1RenderTarget* pRenderTarget,
-        IWICImagingFactory* pIWICFactory,
-        PCWSTR uri,
+    static HRESULT LoadBitmapFromFile(PCWSTR uri,
         UINT destinationWidth,
         UINT destinationHeight,
         ComPtr<ID2D1Bitmap>* ppBitmap
@@ -66,7 +86,7 @@ protected:
 
 
     // wic_factory:
-    ComPtr<IWICImagingFactory> wic_factory;
+    static IWICImagingFactory* wic_factory;
 
 
     struct Screen {
