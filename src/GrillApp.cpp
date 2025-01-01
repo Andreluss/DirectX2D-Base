@@ -17,6 +17,7 @@ void GrillApp::UpdateGame(float delta_time)
         // Game finished! 
         // Show message and ask if want to play again, otherwise close the app'
         auto msg = (std::wstring(L"Game finished!\nYour score is ") + std::to_wstring(score->GetScore())) + L"\nPress OK to play again.";
+        gameProgress += delta_time / gameConfig.gameDuration;
         if (MessageBox(Screen::GetHwnd(), msg.c_str(), L"Game Over", MB_RETRYCANCEL | MB_ICONINFORMATION) == IDRETRY) {
             // Restart the game
             gameProgress = 0.0f;

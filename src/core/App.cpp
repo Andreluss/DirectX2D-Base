@@ -3,7 +3,8 @@
 #include "core/EventSystem.h"
 
 // Statics initialization
-float App::Config::maxFPS{ 60.0f };
+float App::Config::maxFPS{ 240.0f };
+const std::chrono::steady_clock::time_point App::Time::appStartTime = std::chrono::high_resolution_clock::now();
 float App::Time::time = App::Time::now();
 float App::Time::deltaTime{};
 ComPtr<ID2D1Factory> App::d2d1_factory{ nullptr };
@@ -13,7 +14,6 @@ HWND App::hwnd_{};
 RECT App::Screen::rc{};
 float App::Config::screen_height = 600;
 float App::Config::screen_width = 800;
-
 
 void App::RunMessageLoop()
 {

@@ -9,11 +9,16 @@ public:
     struct EventDraw {};
     // Information about the time elapsed between frames.
     struct Time {
+    private:
+        const static std::chrono::steady_clock::time_point appStartTime;
+    public:
         static float time;
         static float deltaTime;
         static float now() {
-            return std::chrono::duration<float>(std::chrono::
-                high_resolution_clock::now().time_since_epoch()).count();
+            auto time_now = std::chrono::high_resolution_clock::now();
+            auto duration_from_start = time_now - appStartTime;
+            
+            return std::chrono::duration<float>(duration_from_start).count();
         }
     };
     struct Config {
