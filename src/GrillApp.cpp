@@ -128,9 +128,7 @@ void GrillApp::DrawGrill() {
 
 void GrillApp::Update()
 {
-    // Draw a dark green background.
-    GetRenderTarget()->Clear(D2D1::ColorF(0x225522));
-
+    // Draw background
     D2D1_SIZE_F size = testBitmap->GetSize();
     GetRenderTarget()->DrawBitmap(
         testBitmap.Get(),
@@ -140,6 +138,8 @@ void GrillApp::Update()
     );
 
     DrawGrill();
+
+    UpdateGame(Time::deltaTime);
 
     for (int i = 0; i < 16; i++) {
         if (!m_meats[i]) continue;
@@ -163,9 +163,9 @@ void GrillApp::Update()
         );
     }
 
-    UpdateGame(Time::deltaTime);
 
     event_system<EventUpdate>.Publish({});
+    event_system<EventDraw>.Publish({});
 }
 
 bool GrillApp::CustomMessageHandler(UINT message, WPARAM /*wParam*/, LPARAM lParam)

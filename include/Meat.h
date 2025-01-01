@@ -51,5 +51,6 @@ private:
 
     HRESULT InitResources() override;
     void Update() override;
+    void Draw() override;
 };
 

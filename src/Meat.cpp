@@ -187,6 +187,11 @@ void Meat::Update()
         return;
     }
     time_elapsed += delta_time;
+    
+}
+
+void Meat::Draw()
+{
     // Draw a circle representing the meat. The color should change depending on the time and the time_* parameters. 
     // First it is raw, then it is cooked, then it is burnt. At the end the meat disappears.
 
@@ -218,7 +223,7 @@ void Meat::Update()
         if (exists) {
             exists = false;
             event_system<Meat::Event>.Publish(
-                Meat::Event {
+                Meat::Event{
                 .type = Meat::Event::NotCollected,
                 .meat_idx = idx
                 }

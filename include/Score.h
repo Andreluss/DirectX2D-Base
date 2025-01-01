@@ -16,6 +16,7 @@ class Score : public GameObject
 
     virtual HRESULT InitResources() override;
     virtual void Update() override;
+    virtual void Draw() override;
 
 public:
     void OnMeatEvent(Meat::Event event);

@@ -5,6 +5,7 @@ class ProgressBar : public GameObject
 private:
     HRESULT InitResources() override;
     void Update() override;
+    void Draw() override;
 
     float duration;
     float elapsed_time{};

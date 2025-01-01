@@ -54,6 +54,10 @@ HRESULT Score::InitResources()
 
 void Score::Update()
 {
+}
+
+void Score::Draw()
+{
     float bar_height = 75;
     // Draw the top UI bar opacity 0.8 black 
     auto size = App::GetRenderTarget()->GetSize();

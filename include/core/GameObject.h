@@ -3,11 +3,13 @@
 #include "core/EventSystem.h"
 #include "core/App.h"
 
-/// <summary>
 /// Base for all objects that react to:
 /// - InitResources() (reloads device-dependent resources)
-/// - Update() (is called every frame with App::Time::deltaTime interval)
-/// </summary>
+/// - Update() (called every frame, uses App::Time::deltaTime to update logic)
+/// - Draw() (called every frame after updates have finished to rerender object) 
+/// The rule for initializing resources: 
+/// - Device-dependent: InitResources() 
+/// - Device-independent: constructor
 class GameObject
 {
 public:
@@ -15,6 +17,7 @@ public:
 private:
     virtual HRESULT InitResources() = 0;
     virtual void Update() = 0;
+    virtual void Draw() = 0;
     using Time = App::Time;
 
     EventSubscription<App::EventUpdate> event_update_subscription{
@@ -23,8 +26,13 @@ private:
         }
     };
     EventSubscription<App::EventInit> event_init_subscription{
-        [this](App::EventInit)->void {
-            this->InitResources();
+        [this](App::EventInit) {
+            InitResources();
+        }
+    };
+    EventSubscription<App::EventDraw> event_draw_subscription{
+        [this](App::EventDraw) {
+            Draw();
         }
     };
 };

@@ -20,6 +20,10 @@ HRESULT ProgressBar::InitResources()
 void ProgressBar::Update()
 {
     elapsed_time += Time::deltaTime;
+}
+
+void ProgressBar::Draw()
+{
     float progress = min(1.0f, elapsed_time / duration);
     // Draw progress bar inside rect and outline
     D2D1_RECT_F rect = D2D1::RectF(
@@ -42,5 +46,4 @@ void ProgressBar::Update()
         border_brush.Get(),
         4.0f
     );
-
 }
