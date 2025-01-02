@@ -42,6 +42,10 @@ HRESULT Meat::InitResources()
     );
 
     if (SUCCEEDED(hr)) {
+        hr = App::GetRenderTarget()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &progressBgBrush);
+    }
+
+    if (SUCCEEDED(hr)) {
         hr = App::Resources::GetBitmap(BitmapPaths::meat_raw, &meatRawBitmap);
     }
 
@@ -51,6 +55,11 @@ HRESULT Meat::InitResources()
 
     if (SUCCEEDED(hr)) {
         hr = App::Resources::GetBitmap(BitmapPaths::meat_burnt, &meatBurntBitmap);
+    }
+
+    if (SUCCEEDED(hr)) {
+        hr = App::GetRenderTarget()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &progressBrush);
+        progressBrush->SetOpacity(0.5f);
     }
 
     return hr;
@@ -119,56 +128,45 @@ void Meat::DrawProgressRing(float progress) {
     D2D1_POINT_2F center = transform.position;
     float ring_radius = Meat::radius * 1.1f;
 
-    
     // Draw the back segments of the progress ring. 
     if (SUCCEEDED(hr)) {
-        ComPtr<ID2D1SolidColorBrush> brush;
-
-        hr = App::GetRenderTarget()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &brush);
-        brush->SetOpacity(0.1f);
+        progressBgBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
+        progressBgBrush->SetOpacity(0.5f);
         if (SUCCEEDED(hr)) {
             // Draw the back segments of the progress ring.s
-            hr = DrawArc(90.0f, -360.f * (time_to_cook / time_to_disappear), ring_radius, center, brush, 8.0f);
+            hr = DrawArc(90.0f, -360.f * (time_to_cook / time_to_disappear), ring_radius, center, progressBgBrush, 8.0f);
         }
     }
 
     if (SUCCEEDED(hr)) {
-        ComPtr<ID2D1SolidColorBrush> brush;
-        hr = App::GetRenderTarget()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Green), &brush);
-        brush->SetOpacity(0.3f);
+        progressBgBrush->SetColor(D2D1::ColorF(D2D1::ColorF::LawnGreen));
+        progressBgBrush->SetOpacity(0.5f);
         if (SUCCEEDED(hr)) {
             // Draw the back segments of the progress ring.s
             hr = DrawArc(90.0f - 360.f * (time_to_cook / time_to_disappear),
                 -360.f * ((time_to_burn - time_to_cook) / time_to_disappear),
-                ring_radius, center, brush, 8.0f);
+                ring_radius, center, progressBgBrush, 8.0f);
         }
     }
 
     if (SUCCEEDED(hr)) {
-        ComPtr<ID2D1SolidColorBrush> brush;
-        hr = App::GetRenderTarget()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &brush);
-        brush->SetOpacity(0.1f);
+        progressBgBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
+        progressBgBrush->SetOpacity(0.5f);
         if (SUCCEEDED(hr)) {
             // Draw the back segments of the progress ring.s
             hr = DrawArc(90.0f - 360.f * (time_to_burn / time_to_disappear),
                 -360.f * ((time_to_disappear - time_to_burn) / time_to_disappear),
-                ring_radius, center, brush, 8.0f);
+                ring_radius, center, progressBgBrush, 8.0f);
         }
     }
 
     // Draw the main progress ring.
     if (SUCCEEDED(hr)) {
-        ComPtr<ID2D1SolidColorBrush> progressBrush;
+        // Define angles (in degrees).
+        float startAngle = 90.0f;  // Starting at the top
+        float sweepAngle = -360.f * progress; // Progress (e.g., 75% of a full circle)
 
-        hr = App::GetRenderTarget()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &progressBrush);
-
-        if (SUCCEEDED(hr)) {
-            // Define angles (in degrees).
-            float startAngle = 90.0f;  // Starting at the top
-            float sweepAngle = -360.f * progress; // Progress (e.g., 75% of a full circle)
-
-            hr = DrawArc(startAngle, sweepAngle, ring_radius, center, progressBrush, 5.0f);
-        }
+        hr = DrawArc(startAngle, sweepAngle, ring_radius, center, progressBrush, 8.0f);
     }
 }
 
@@ -179,7 +177,6 @@ void Meat::Update()
         return;
     }
     time_elapsed += delta_time;
-    
 }
 
 void Meat::Draw()

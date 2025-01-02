@@ -51,6 +51,8 @@ private:
     Idx idx;
 
     // Brush to render the meat.
+    ComPtr<ID2D1SolidColorBrush> progressBgBrush;
+    ComPtr<ID2D1SolidColorBrush> progressBrush;
     ComPtr<ID2D1SolidColorBrush> meatBrush;
     ComPtr<ID2D1Bitmap> meatRawBitmap{};
     ComPtr<ID2D1Bitmap> meatCookedBitmap{};
