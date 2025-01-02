@@ -26,7 +26,7 @@ public:
     // Collect the meat from the grill.
     void Collect();
 
-    const float radius = 40.0f;
+    float radius = 40.0f;
     // Event published when meat disappears from the grill. 
     struct Event {
         enum {
@@ -52,7 +52,9 @@ private:
 
     // Brush to render the meat.
     ComPtr<ID2D1SolidColorBrush> meatBrush;
-    ComPtr<ID2D1Bitmap> meatBitmap{};
+    ComPtr<ID2D1Bitmap> meatRawBitmap{};
+    ComPtr<ID2D1Bitmap> meatCookedBitmap{};
+    ComPtr<ID2D1Bitmap> meatBurntBitmap{};
 
     void DrawProgressRing(float progress);
 

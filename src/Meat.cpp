@@ -42,7 +42,15 @@ HRESULT Meat::InitResources()
     );
 
     if (SUCCEEDED(hr)) {
-        hr = App::Resources::GetBitmap(BitmapPaths::meat_test, &meatBitmap);
+        hr = App::Resources::GetBitmap(BitmapPaths::meat_raw, &meatRawBitmap);
+    }
+
+    if (SUCCEEDED(hr)) {
+        hr = App::Resources::GetBitmap(BitmapPaths::meat_cooked, &meatCookedBitmap);
+    }
+
+    if (SUCCEEDED(hr)) {
+        hr = App::Resources::GetBitmap(BitmapPaths::meat_burnt, &meatBurntBitmap);
     }
 
     return hr;
@@ -109,7 +117,7 @@ void Meat::DrawProgressRing(float progress) {
     HRESULT hr = S_OK;
      // Define center and radius of the ring.
     D2D1_POINT_2F center = transform.position;
-    float ring_radius = Meat::radius * 1.2f;
+    float ring_radius = Meat::radius * 1.1f;
 
     
     // Draw the back segments of the progress ring. 
@@ -179,27 +187,25 @@ void Meat::Draw()
     // Draw a circle representing the meat. The color should change depending on the time and the time_* parameters. 
     // First it is raw, then it is cooked, then it is burnt. At the end the meat disappears.
 
-    // Draw the circle.
-    D2D1_ELLIPSE ellipse = D2D1::Ellipse(
-        transform.position,
-        radius,
-        radius
-    );
+    ID2D1Bitmap* meatBitmap = meatBurntBitmap.Get();
     // Adjust the color of the meat.
     if (time_elapsed < time_to_cook)
     {
         // Raw meat.
         meatBrush->SetColor(D2D1::ColorF(D2D1::ColorF::DarkRed));
+        meatBitmap = meatRawBitmap.Get();
     }
     else if (time_elapsed < time_to_burn)
     {
         // Cooked meat.
         meatBrush->SetColor(D2D1::ColorF(D2D1::ColorF::DarkOrange));
+        meatBitmap = meatCookedBitmap.Get();
     }
     else if (time_elapsed < time_to_disappear)
     {
         // Burnt meat.
         meatBrush->SetColor(D2D1::ColorF(D2D1::ColorF::DarkGray));
+        meatBitmap = meatBurntBitmap.Get();
     }
     else
     {
@@ -219,12 +225,18 @@ void Meat::Draw()
 
     DrawProgressRing(time_elapsed / time_to_disappear);
 
-    // set opacity of meat brush 
-    meatBrush->SetOpacity(0.2f);
+    //// Draw the meat circle.
+    //meatBrush->SetOpacity(0.2f);
+    //D2D1_ELLIPSE ellipse = D2D1::Ellipse(
+    //    transform.position,
+    //    radius,
+    //    radius
+    //);
     //App::GetRenderTarget()->FillEllipse(&ellipse, meatBrush.Get());
+
     // Draw the meat bitmap.
     App::GetRenderTarget()->DrawBitmap(
-        meatBitmap.Get(),
+        meatBitmap,
         D2D1::RectF(
             transform.position.x - radius,
             transform.position.y - radius,
