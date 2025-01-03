@@ -14,7 +14,7 @@ protected:
     bool CustomMessageHandler(UINT message, WPARAM wParam, LPARAM lParam) override;
 private:
     ComPtr<ID2D1Bitmap> testBitmap;
-    ComPtr<ID2D1SolidColorBrush> m_pLightSlateGrayBrush;
+    ComPtr<ID2D1SolidColorBrush> grillBrush;
     ComPtr<ID2D1SolidColorBrush> m_pBlackBrush;
     std::vector<std::unique_ptr<Meat>> m_meats;
     int MeatsCount() const {
@@ -33,8 +33,8 @@ private:
         const int maxMeats = 16;
         const float gameDuration = 60.f;
         const float meatOnGrillTime = 6.f;
-        const int finalMaxMeats = 10;
-        const float timeToNextSpawn = 0.3f;
+        const int finalMaxMeats = 9;
+        const float timeToNextSpawn = 0.4f;
         std::vector<std::pair<float, int>> maxMeatsAtProgress = {
             {0.0f, 3},
             {0.05f, 4},

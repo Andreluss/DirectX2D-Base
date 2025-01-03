@@ -3,7 +3,7 @@
 #include "core/EventSystem.h"
 
 // Statics initialization
-float App::Config::maxFPS{ 240.0f };
+float App::Config::maxFPS{ 120.0f };
 const std::chrono::steady_clock::time_point App::Time::appStartTime = std::chrono::high_resolution_clock::now();
 float App::Time::time = App::Time::now();
 float App::Time::deltaTime{};

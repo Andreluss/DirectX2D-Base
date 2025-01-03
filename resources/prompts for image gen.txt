@@ -1,0 +1,3 @@
+# background.jpg
+use Dalle and generate a background (e.g. grass with some grill accessories laying around)  for a grill simulation game, cartoon graphics
+

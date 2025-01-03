@@ -126,7 +126,8 @@ void Meat::DrawProgressRing(float progress) {
     HRESULT hr = S_OK;
      // Define center and radius of the ring.
     D2D1_POINT_2F center = transform.position;
-    float ring_radius = Meat::radius * 1.1f;
+    float ring_radius = Meat::radius * 1.05f;
+    float stroke_width = 6;
 
     // Draw the back segments of the progress ring. 
     if (SUCCEEDED(hr)) {
@@ -134,7 +135,7 @@ void Meat::DrawProgressRing(float progress) {
         progressBgBrush->SetOpacity(0.5f);
         if (SUCCEEDED(hr)) {
             // Draw the back segments of the progress ring.s
-            hr = DrawArc(90.0f, -360.f * (time_to_cook / time_to_disappear), ring_radius, center, progressBgBrush, 8.0f);
+            hr = DrawArc(90.0f, -360.f * (time_to_cook / time_to_disappear), ring_radius, center, progressBgBrush, stroke_width);
         }
     }
 
@@ -145,7 +146,7 @@ void Meat::DrawProgressRing(float progress) {
             // Draw the back segments of the progress ring.s
             hr = DrawArc(90.0f - 360.f * (time_to_cook / time_to_disappear),
                 -360.f * ((time_to_burn - time_to_cook) / time_to_disappear),
-                ring_radius, center, progressBgBrush, 8.0f);
+                ring_radius, center, progressBgBrush, stroke_width);
         }
     }
 
@@ -156,7 +157,7 @@ void Meat::DrawProgressRing(float progress) {
             // Draw the back segments of the progress ring.s
             hr = DrawArc(90.0f - 360.f * (time_to_burn / time_to_disappear),
                 -360.f * ((time_to_disappear - time_to_burn) / time_to_disappear),
-                ring_radius, center, progressBgBrush, 8.0f);
+                ring_radius, center, progressBgBrush, stroke_width);
         }
     }
 
@@ -166,7 +167,7 @@ void Meat::DrawProgressRing(float progress) {
         float startAngle = 90.0f;  // Starting at the top
         float sweepAngle = -360.f * progress; // Progress (e.g., 75% of a full circle)
 
-        hr = DrawArc(startAngle, sweepAngle, ring_radius, center, progressBrush, 8.0f);
+        hr = DrawArc(startAngle, sweepAngle, ring_radius, center, progressBrush, stroke_width);
     }
 }
 

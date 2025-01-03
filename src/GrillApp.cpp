@@ -71,7 +71,7 @@ void GrillApp::SpawnMeat()
 
     // What meat to spawn
     float total_meat_time = gameConfig.meatOnGrillTime 
-        * random_float(0.25f, 1.f);
+        * random_float(0.4f, 1.f);
     Assert(total_meat_time > 0.05f && "Meat time is irreasonably <= 0.05s");
 
     // Spawn and initialize 
@@ -87,17 +87,17 @@ void GrillApp::DrawGrill() {
         Screen::centerX() + grill_grate_size / 2,
         Screen::centerY() + grill_grate_size / 2
     );
-    m_pLightSlateGrayBrush->SetColor(D2D1::ColorF(D2D1::ColorF::LightSlateGray));
-    GetRenderTarget()->FillRectangle(&grill_grate_rect, m_pLightSlateGrayBrush.Get());
+    grillBrush->SetColor(D2D1::ColorF(D2D1::ColorF::LightSlateGray));
+    GetRenderTarget()->FillRectangle(&grill_grate_rect, grillBrush.Get());
 
-    m_pLightSlateGrayBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
+    grillBrush->SetColor(D2D1::ColorF(D2D1::ColorF::Black));
     for (auto x = grill_grate_rect.left; x < grill_grate_rect.right; x += 20)
     {
         GetRenderTarget()->DrawLine(
             D2D1::Point2F(x, grill_grate_rect.top),
             D2D1::Point2F(x, grill_grate_rect.bottom),
-            m_pLightSlateGrayBrush.Get(),
-            0.5f
+            grillBrush.Get(),
+            1.f
         );
     }
 
@@ -106,8 +106,8 @@ void GrillApp::DrawGrill() {
         GetRenderTarget()->DrawLine(
             D2D1::Point2F(grill_grate_rect.left, y),
             D2D1::Point2F(grill_grate_rect.right, y),
-            m_pLightSlateGrayBrush.Get(),
-            0.5f
+            grillBrush.Get(),
+            1.f
         );
     }
 
@@ -204,7 +204,7 @@ HRESULT GrillApp::InitApp()
 
     hr = GetRenderTarget()->CreateSolidColorBrush(
         D2D1::ColorF(D2D1::ColorF::LightSlateGray),
-        &m_pLightSlateGrayBrush
+        &grillBrush
     );
 
     if (SUCCEEDED(hr))
@@ -232,7 +232,7 @@ HRESULT GrillApp::InitApp()
 
     if (SUCCEEDED(hr)) {
         hr = LoadBitmapFromFile(
-            L".\\resources\\sampleImage.jpg",
+            L".\\resources\\background.jpg",
             (int)Screen::width(),
             0,
             &testBitmap);
@@ -243,7 +243,7 @@ HRESULT GrillApp::InitApp()
 
 void GrillApp::DropApp()
 {
-    m_pLightSlateGrayBrush.Reset();
+    grillBrush.Reset();
     m_pBlackBrush.Reset();
     for (auto& meat : m_meats) {
         if (!meat) continue;
