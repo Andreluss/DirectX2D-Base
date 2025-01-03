@@ -100,7 +100,7 @@ void Grill::CustomMessageHandler(UINT message, WPARAM wParam, LPARAM lParam)
 
             bool contains_point = pow(meat->transform.position.x - pt.x, 2)
                 + pow(meat->transform.position.y - pt.y, 2)
-                < pow(meat->radius, 2);
+                < pow(meat->radius * transform.scale, 2);
 
             if (contains_point) {
                 meat->Collect();

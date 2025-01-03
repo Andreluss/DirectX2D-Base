@@ -182,11 +182,10 @@ void Meat::Update()
 
 void Meat::Draw()
 {
-    // Draw a circle representing the meat. The color should change depending on the time and the time_* parameters. 
+    // Draw the meat piece. The color should change depending on the time and the time_* parameters. 
     // First it is raw, then it is cooked, then it is burnt. At the end the meat disappears.
 
     ID2D1Bitmap* meatBitmap = meatBurntBitmap.Get();
-    // Adjust the color of the meat.
     if (time_elapsed < time_to_cook)
     {
         // Raw meat.
@@ -216,7 +215,7 @@ void Meat::Draw()
                 .meat_idx = idx
                 }
             );
-            // after this instruction the destructor has been called...
+            // after this instruction the destructor might have been called...
         }
         return;
     }
