@@ -26,6 +26,7 @@
     <ClInclude Include="include\core\GameObject.h" />
     <ClInclude Include="include\core\Transform.h" />
     <ClInclude Include="include\GrillApp.h" />
+    <ClInclude Include="include\GrillGame.h" />
     <ClInclude Include="include\Meat.h" />
     <ClInclude Include="include\ProgressBar.h" />
     <ClInclude Include="include\Score.h" />
@@ -38,6 +39,7 @@
     <ClCompile Include="src\core\GameObject.cpp" />
     <ClCompile Include="src\core\Transform.cpp" />
     <ClCompile Include="src\GrillApp.cpp" />
+    <ClCompile Include="src\GrillGame.cpp" />
     <ClCompile Include="src\Meat.cpp" />
     <ClCompile Include="src\ProgressBar.cpp" />
     <ClCompile Include="src\Score.cpp" />

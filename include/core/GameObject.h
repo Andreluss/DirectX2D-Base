@@ -16,9 +16,16 @@ public:
     Transform transform {};
 private:
     virtual HRESULT InitResources() = 0;
+    // Update state of the game, don't draw anything here.
     virtual void Update() = 0;
+    // Draw the object on the screen.
     virtual void Draw() = 0;
+    // [Optional] Handle custom messages (e.g. mouse click).
+    virtual void CustomMessageHandler(UINT /*message*/, WPARAM /*wParam*/, LPARAM /*lParam*/) {}
+    
     using Time = App::Time;
+    using Screen = App::Screen;
+    using Resources = App::Resources;
 
     EventSubscription<App::EventUpdate> event_update_subscription{
         [this](App::EventUpdate) {
@@ -33,6 +40,11 @@ private:
     EventSubscription<App::EventDraw> event_draw_subscription{
         [this](App::EventDraw) {
             Draw();
+        }
+    };
+    EventSubscription<App::EventMessage> event_message_subscription{
+        [this](App::EventMessage event) {
+            CustomMessageHandler(event.message, event.wParam, event.lParam);
         }
     };
 };

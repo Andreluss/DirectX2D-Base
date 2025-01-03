@@ -222,6 +222,12 @@ HRESULT App::Initialize()
     return hr;
 }
 
+void App::Tick()
+{
+    event_system<EventUpdate>.Publish({});
+    event_system<EventDraw>.Publish({});
+}
+
 HRESULT App::CreateDeviceIndependentResources()
 {
     HRESULT hr = S_OK;
@@ -298,7 +304,7 @@ HRESULT App::OnRender()
         d2d1_render_target->SetTransform(D2D1::Matrix3x2F::Identity());
         d2d1_render_target->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
-        Update();
+        Tick();
 
         hr = d2d1_render_target->EndDraw();
     }
@@ -352,11 +358,12 @@ LRESULT CALLBACK App::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 
         if (pApp)
         {
-            if (pApp->CustomMessageHandler(message, wParam, lParam)) {
+            if (pApp->GlobalMessageHandler(message, wParam, lParam)) {
                 result = 0;
                 wasHandled = true;
             }
             else {
+                // (1/2) Handle the message for the app.
                 switch (message)
                 {
                 case WM_SIZE:
@@ -394,6 +401,9 @@ LRESULT CALLBACK App::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
                 wasHandled = true;
                 break;
                 }
+                
+                // (2/2) Publish the message to the event system.
+                event_system<EventMessage>.Publish(EventMessage{ message, wParam, lParam });
             }
         }
 

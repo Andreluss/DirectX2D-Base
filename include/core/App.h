@@ -8,6 +8,11 @@ public:
     struct EventInit {};
     struct EventUpdate {};
     struct EventDraw {};
+    struct EventMessage {
+        UINT message;
+        WPARAM wParam;
+        LPARAM lParam;
+    };
     // Information about the time elapsed between frames.
     struct Time {
     private:
@@ -56,39 +61,6 @@ public:
             }
         }
     };
-public:
-    // Register the window class and call methods for instantiating drawing resources
-    HRESULT Initialize();
-
-    // Process and dispatch messages
-    void RunMessageLoop();
-
-    static HRESULT LoadBitmapFromFile(PCWSTR uri,
-        UINT destinationWidth,
-        UINT destinationHeight,
-        ComPtr<ID2D1Bitmap>* ppBitmap
-    );
-
-protected:
-    // This method can be overridden to handle custom messages.
-    // Returns true if the message was captured (and shouldn't be passed further).
-    virtual bool CustomMessageHandler(
-        [[maybe_unused]] UINT message,
-        [[maybe_unused]] WPARAM wParam,
-        [[maybe_unused]] LPARAM lParam
-    ) {
-        return false;
-    }
-
-    virtual void Update() = 0;
-    virtual HRESULT InitApp() = 0;
-    virtual void DropApp() = 0;
-
-
-    // wic_factory:
-    static IWICImagingFactory* wic_factory;
-
-
     struct Screen {
         static float width() {
             update();
@@ -117,9 +89,42 @@ protected:
         static RECT rc;
         static void update() {
             Assert(GetHwnd() != nullptr && "Querying for window info when it doesn't exist. ");
-            if(GetHwnd()) GetClientRect(GetHwnd(), &rc);
+            if (GetHwnd()) GetClientRect(GetHwnd(), &rc);
         }
     };
+public:
+    // Register the window class and call methods for instantiating drawing resources
+    HRESULT Initialize();
+
+    // Process and dispatch messages
+    void RunMessageLoop();
+
+    static HRESULT LoadBitmapFromFile(PCWSTR uri,
+        UINT destinationWidth,
+        UINT destinationHeight,
+        ComPtr<ID2D1Bitmap>* ppBitmap
+    );
+
+protected:
+    // Message handling on the app level (see GameObject::CustomMessageHandler for object-level message handling).
+    // Returns true if the message was captured (and shouldn't be passed further).
+    virtual bool GlobalMessageHandler(
+        [[maybe_unused]] UINT message,
+        [[maybe_unused]] WPARAM wParam,
+        [[maybe_unused]] LPARAM lParam
+    ) {
+        return false;
+    }
+
+    void Tick();
+    virtual HRESULT InitApp() = 0;
+    virtual void DropApp() = 0;
+
+
+    // wic_factory:
+    static IWICImagingFactory* wic_factory;
+
+
 private:
 
     // Initialize device-independent resources.
