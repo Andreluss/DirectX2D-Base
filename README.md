@@ -8,5 +8,5 @@
     - <b>Don't</b> call it directly. <b>Use</b> `Microsoft::WRL::ComPtr` smart pointer to store DirectX resource types. 
 
 ## Example Game 
-<p>Grill Master - challenge your focus and reaction time on the BBQ. </p>
+<p>Grill Master - challenge your focus and reaction time at the BBQ. </p>
 <img src="game_demo.png" width="500" />
