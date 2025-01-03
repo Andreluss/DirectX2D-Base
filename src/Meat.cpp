@@ -242,4 +242,5 @@ void Meat::Draw()
             transform.position.y + radius
         )
     );
+
 }

@@ -39,7 +39,10 @@ private:
     };
     EventSubscription<App::EventDraw> event_draw_subscription{
         [this](App::EventDraw) {
+            App::GetRenderTarget()->SetTransform(D2D1::Matrix3x2F::Scale(transform.scale, transform.scale, transform.position));
             Draw();
+            App::GetRenderTarget()->SetTransform(D2D1::Matrix3x2F::Identity());
+
         }
     };
     EventSubscription<App::EventMessage> event_message_subscription{

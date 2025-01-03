@@ -3,8 +3,6 @@
 #include "GrillGame.h"
 
 class GrillApp : public App {
-public:
-    GrillApp() = default;
 protected:
     HRESULT InitApp() override;
     void DropApp() override;
