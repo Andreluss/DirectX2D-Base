@@ -5,8 +5,8 @@
 class GrillApp : public App {
 public:
     GrillApp() {
-        App::Config::screen_height = 720;
-        App::Config::screen_width = 1280;
+        App::Config::screen_height = 800;
+        App::Config::screen_width = 1000;
     }
 protected:
     HRESULT InitApp() override;

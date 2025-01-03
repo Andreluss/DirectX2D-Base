@@ -108,11 +108,17 @@ void GrillGame::Update()
 void GrillGame::Draw() {
     // Draw background
     D2D1_SIZE_F size = bgBitmap->GetSize();
+    float r = max(Screen::width() / size.width,
+                  Screen::height() / size.height);
+
     App::GetRenderTarget()->DrawBitmap(
         bgBitmap.Get(),
         D2D1::RectF(
-            Screen::width() - size.width, Screen::height() - size.height,
-            Screen::width(), Screen::height())
+            Screen::centerX() - r * size.width / 2,
+            Screen::centerY() - r * size.height / 2,
+            Screen::centerX() + r * size.width / 2,
+            Screen::centerY() + r * size.height / 2
+        )
     );
 
     // grill->Draw(); this should happen now
