@@ -84,7 +84,7 @@ void Grill::Draw()
     );
 }
 
-void Grill::CustomMessageHandler(UINT message, WPARAM wParam, LPARAM lParam)
+void Grill::CustomMessageHandler(UINT message, WPARAM /*wParam*/, LPARAM lParam)
 {
     if (message == WM_LBUTTONDOWN)
     {

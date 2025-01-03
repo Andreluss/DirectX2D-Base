@@ -11,7 +11,6 @@ class Meat : public GameObject
         static constexpr PCWSTR meat_raw = L".\\resources\\meat_raw.png";
         static constexpr PCWSTR meat_cooked = L".\\resources\\meat_cooked.png";
         static constexpr PCWSTR meat_burnt = L".\\resources\\meat_burnt.png";
-        static constexpr PCWSTR meat_test = L".\\resources\\meat.png";
     };
 public:
     using Idx = int;

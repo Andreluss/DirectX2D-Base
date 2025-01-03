@@ -16,7 +16,7 @@ RECT App::Screen::rc{};
 float App::Config::screen_height = 600;
 float App::Config::screen_width = 800;
 std::wstring App::Config::window_class_name = L"D2DApp";
-std::wstring App::Config::window_title = L"Grill Master";
+std::wstring App::Config::window_title = L"DirectX 2D Application";
 std::unordered_map<std::wstring, ComPtr<ID2D1Bitmap>> App::Resources::bitmaps{};
 
 void App::RunMessageLoop()
@@ -179,7 +179,7 @@ HRESULT App::Initialize()
         wcex.hbrBackground = NULL;
         wcex.lpszMenuName = NULL;
         wcex.hCursor = LoadCursor(NULL, IDI_APPLICATION);
-        wcex.lpszClassName = L"D2DApp";
+        wcex.lpszClassName = Config::window_class_name.c_str();
 
         RegisterClassEx(&wcex);
 
