@@ -206,13 +206,19 @@ HRESULT App::Initialize()
             // obtain the window's DPI, and use it to scale the window size.
             float dpi = static_cast<float>(GetDpiForWindow(hwnd_));
 
+            RECT r = { 0, 0, static_cast<LONG>(ceil(App::Config::screen_width * dpi / 96.f)), static_cast<LONG>(ceil(App::Config::screen_height * dpi / 96.f)) };
+            AdjustWindowRect(&r, GetWindowLong(hwnd_, GWL_STYLE), FALSE);
+
+            float window_width = static_cast<float>(r.right - r.left);
+            float window_height = static_cast<float>(r.bottom - r.top);
+            
             SetWindowPos(
                 hwnd_,
                 NULL,
                 NULL,
                 NULL,
-                static_cast<int>(ceil(App::Config::screen_width * dpi / 96.f)),
-                static_cast<int>(ceil(App::Config::screen_height * dpi / 96.f)),
+                static_cast<int>(ceil(window_width * dpi / 96.f)),
+                static_cast<int>(ceil(window_height * dpi / 96.f)),
                 SWP_NOMOVE);
             ShowWindow(hwnd_, SW_SHOWNORMAL);
             UpdateWindow(hwnd_);

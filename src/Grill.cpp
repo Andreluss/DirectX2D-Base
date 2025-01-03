@@ -27,12 +27,10 @@ void Grill::Update()
     for (int i = 0; i < ssize(m_meats); i++) {
         if (!m_meats[i]) continue;
         // meats on size_rt x size grid with, relative to center of screen
-        m_meats[i]->transform.position =
-            D2D1::Point2F(
-                Screen::centerX() + 90.0f * (i % size_rt - 1.5f),
-                Screen::centerY() + 90.0f * (static_cast<float>(i / size_rt) - 1.5f)
-            );
-
+        m_meats[i]->transform.position = D2D1::Point2F(
+            transform.position.x + transform.scale * 95.0f * (i % size_rt - (size_rt - 1.0f) / 2),
+            transform.position.y + transform.scale * 95.0f * (static_cast<float>(i / size_rt) - (size_rt - 1.0f) / 2)
+        );
         m_meats[i]->transform.scale = this->transform.scale;
     }
 }

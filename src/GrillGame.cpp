@@ -89,6 +89,10 @@ void GrillGame::Update()
 {
     UpdateGame(Time::deltaTime);
 
+    float scaling_ratio = min(Screen::width() / 800, Screen::height() / 600);
+    grill->transform.scale = 1.f * scaling_ratio;
+    grill->transform.position = D2D1::Point2F(Screen::centerX(), Screen::centerY());
+
     // grill->Update(); should happen now
 
     score->transform.position = D2D1::Point2F(10.0f, 10.0f);

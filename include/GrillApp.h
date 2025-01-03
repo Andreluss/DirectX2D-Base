@@ -3,11 +3,14 @@
 #include "GrillGame.h"
 
 class GrillApp : public App {
+public:
+    GrillApp() {
+        App::Config::screen_height = 720;
+        App::Config::screen_width = 1280;
+    }
 protected:
     HRESULT InitApp() override;
     void DropApp() override;
-    //void Update() override;
-    //bool CustomMessageHandler(UINT message, WPARAM wParam, LPARAM lParam) override;
 private:
     std::unique_ptr<GrillGame> game; // todo: change to std::unique_ptr<GameObject>
 };
