@@ -15,6 +15,8 @@ HWND App::hwnd_{};
 RECT App::Screen::rc{};
 float App::Config::screen_height = 600;
 float App::Config::screen_width = 800;
+std::wstring App::Config::window_class_name = L"D2DApp";
+std::wstring App::Config::window_title = L"Grill Master";
 std::unordered_map<std::wstring, ComPtr<ID2D1Bitmap>> App::Resources::bitmaps{};
 
 void App::RunMessageLoop()
@@ -188,8 +190,8 @@ HRESULT App::Initialize()
         // correct DPI-scaled size, then we use ShowWindow to show it.
 
         hwnd_ = CreateWindow(
-            L"D2DApp",
-            L"Direct2D demo application",
+            Config::window_class_name.c_str(),
+            Config::window_title.c_str(),
             WS_OVERLAPPEDWINDOW,
             CW_USEDEFAULT,
             CW_USEDEFAULT,

@@ -31,6 +31,8 @@ public:
         static float maxFPS;
         static float screen_width;
         static float screen_height;
+        static std::wstring window_class_name;
+        static std::wstring window_title;
     };
     static ComPtr<ID2D1Factory> GetFactory() {
         return d2d1_factory;
